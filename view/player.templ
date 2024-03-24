@@ -1,0 +1,75 @@
+package view
+
+import (
+	"fmt"
+	"strconv"
+	"github.com/raitonoberu/personal-best/app/model"
+	"github.com/raitonoberu/personal-best/view/component"
+)
+
+templ PlayerList(c model.Competition) {
+	<form
+		hx-post={ fmt.Sprintf("/competitions/%d/players", c.ID) }
+		hx-target="#players"
+		hx-swap="afterbegin"
+		hx-on::after-request="this.reset()"
+	>
+		<fieldset role="group">
+			<input
+				type="text"
+				name="name"
+				placeholder="Имя игрока"
+				required
+			/>
+			<input type="submit" value="Добавить"/>
+		</fieldset>
+	</form>
+	<div id="players">
+		for _, p := range c.Players {
+			@Player(c.ID, p)
+		}
+	</div>
+}
+
+templ Player(compId uint, p model.Player) {
+	<article class="player">
+		@component.EditableText(p.Name, fmt.Sprintf("/competitions/%d/players/%d", compId, p.ID), "name", true)
+		<div class="keeper-container">
+			<fieldset
+				hx-patch={ fmt.Sprintf("/competitions/%d/players/%d", compId, p.ID) }
+				hx-trigger="change"
+				hx-include="this"
+				hx-swap="none"
+			>
+				<input
+					id={ "playercheck-" + strconv.Itoa(int(p.ID)) }
+					type="radio"
+					name={ "is-keeper-" + strconv.Itoa(int(p.ID)) }
+					value="0"
+					checked?={ !p.IsKeeper }
+				/>
+				<label for={ "playercheck-" + strconv.Itoa(int(p.ID)) }>Игрок</label>
+				<input
+					id={ "keepercheck-" + strconv.Itoa(int(p.ID)) }
+					type="radio"
+					name={ "is-keeper-" + strconv.Itoa(int(p.ID)) }
+					value="1"
+					checked?={ p.IsKeeper }
+				/>
+				<label for={ "keepercheck-" + strconv.Itoa(int(p.ID)) }>Вратарь</label>
+			</fieldset>
+		</div>
+	</article>
+}
+
+templ PlayerCount(c model.Competition) {
+	<div id="player-count" hx-swap-oob="true">
+		<b>Состав: </b> { c.PlayerCount() }
+	</div>
+}
+
+templ PlayerWithUpdate(c model.Competition, p model.Player) {
+	@Player(c.ID, p)
+	@PlayerCount(c)
+	@startModalContainer(c)
+}

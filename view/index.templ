@@ -1,0 +1,84 @@
+package view
+
+import (
+	"github.com/raitonoberu/personal-best/app/model"
+)
+
+// this is meant to include other pages
+templ index(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<style>[x-cloak] { display: none !important; }</style>
+			<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2" crossorigin="anonymous"/>
+			<link rel="stylesheet" href="/static/style.css"/>
+			<script defer src="https://unpkg.com/alpinejs@3" crossorigin="anonymous"></script>
+			<script defer src="https://unpkg.com/htmx.org@1.9.11" crossorigin="anonymous"></script>
+			<title>{ title }</title>
+		</head>
+		<body>
+			<header class="container-fluid">
+				<nav>
+					<ul>
+						<li>
+							<a href="/" class="contrast">Главная</a>
+						</li>
+						if _, ok := ctx.Value("user").(*model.User); ok {
+							<li>
+								<div x-data="{ open: false }">
+									<a href="#" @click="open = true" class="secondary">Создать соревнование</a>
+									<dialog x-bind:open="open">
+										@creationModal()
+									</dialog>
+								</div>
+							</li>
+						}
+					</ul>
+					<ul>
+						<li>
+							if _, ok := ctx.Value("user").(*model.User); ok {
+								<li>
+									<a class="contrast" href="/profile">Профиль</a>
+								</li>
+							} else {
+								<li>
+									<a href="/login">Вход</a>
+								</li>
+								<li>
+									<a href="/register">Регистрация</a>
+								</li>
+							}
+						</li>
+					</ul>
+				</nav>
+			</header>
+			<main class="container">
+				{ children... }
+			</main>
+		</body>
+	</html>
+}
+
+templ creationModal() {
+	<article>
+		<header>
+			<button rel="prev" @click="open = false"></button>
+			<b>Создать соревнование</b>
+		</header>
+		<form id="creation-form" action="/competitions" method="post">
+			<div>
+				<label for="name">Название</label>
+				<input type="text" name="name" id="name"/>
+			</div>
+			<div>
+				<label for="description">Описание</label>
+				<textarea name="description" id="description"></textarea>
+			</div>
+		</form>
+		<footer>
+			<button type="submit" form="creation-form">Создать</button>
+		</footer>
+	</article>
+}

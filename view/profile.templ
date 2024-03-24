@@ -1,0 +1,69 @@
+package view
+
+import (
+	"github.com/raitonoberu/personal-best/app/model"
+)
+
+// make sure to include Competitions
+templ Profile(u model.User) {
+	@index("Профиль") {
+		@ProfileCard(u)
+		<h3>Мои соревнования</h3>
+		for _, c := range u.Competitions {
+			@competitionListItem(c)
+		}
+	}
+}
+
+templ ProfileCard(u model.User) {
+	<article id="profile">
+		<header>
+			Профиль
+		</header>
+		<div>
+			<b>Имя:</b> { u.Name }
+			<br/>
+			<b>Почта:</b> { u.Email }
+		</div>
+		<footer x-data="{ open: false }">
+			<button class="secondary" @click="open = true">Редактировать</button>
+			<dialog x-bind:open="open">
+				@profileModal(u)
+			</dialog>
+			<a role="button" class="secondary outline" href="/logout">Выход</a>
+		</footer>
+	</article>
+}
+
+// todo: make a reusable template??
+templ profileModal(u model.User) {
+	<article>
+		<header>
+			<button rel="prev" @click="open = false"></button>
+			<b>Редактировать профиль</b>
+		</header>
+		<form
+			id="profile-form"
+			hx-patch="/profile"
+			hx-target="#profile"
+			hx-swap="outerHTML"
+			hx-on::after-request="open = false"
+		>
+			<div>
+				<label for="name">Имя</label>
+				<input value={ u.Name } type="text" name="name" id="name"/>
+			</div>
+			<div>
+				<label for="email">Почта</label>
+				<input value={ u.Email } type="text" name="email" id="email"/>
+			</div>
+			<div>
+				<label for="email">Пароль</label>
+				<input placeholder="********" type="password" name="password" id="password"/>
+			</div>
+		</form>
+		<footer>
+			<button @htmx:afterSwap="open = false" type="submit" form="profile-form">Обновить</button>
+		</footer>
+	</article>
+}

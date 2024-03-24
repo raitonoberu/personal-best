@@ -1,0 +1,22 @@
+package view
+
+templ Register() {
+	@index("Регистрация") {
+		<h1>Регистрация</h1>
+		<form action="/register" method="post">
+			<div>
+				<label for="name">ФИО</label>
+				<input type="text" name="name" id="name"/>
+			</div>
+			<div>
+				<label for="email">Почта</label>
+				<input type="email" name="email" id="email"/>
+			</div>
+			<div>
+				<label for="password">Пароль</label>
+				<input type="password" name="password" id="password"/>
+			</div>
+			<button type="submit">Зарегистрироваться</button>
+		</form>
+	}
+}

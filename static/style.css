@@ -1,0 +1,57 @@
+/* Global */
+@media (min-width: 1280px) {
+  main.container {
+    max-width: 1100px;
+  }
+}
+footer > button {
+  margin: 0 !important;
+}
+.icon-button {
+  /* god bless feathericons.com */
+  display: inline-flex;
+  width: 1.3rem;
+  height: 1.3rem;
+  justify-content: center;
+  padding: 0.2rem;
+  cursor: pointer;
+}
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .icon-button {
+    filter: invert(1);
+  }
+}
+[data-theme="dark"] .icon-button {
+  filter: invert(1);
+}
+.editable-text {
+  display: inline-block;
+  word-break: break-word;
+}
+.editable-text br {
+  display: none;
+}
+.editing {
+  text-decoration: underline;
+}
+
+/* Player */
+.player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.keeper-container fieldset {
+  margin: 0;
+}
+
+/* Competition */
+tr .minWidth {
+  width: 1%;
+  white-space: nowrap;
+}
+#competition-info > header {
+  display: flex;
+  justify-content: space-between;
+}
