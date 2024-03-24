@@ -22,9 +22,11 @@ templ competitionListItem(c model.Competition) {
 			</a>
 		</header>
 		<div>
-			<div>
-				<b>Тренер:</b> { c.User.Name }
-			</div>
+			if c.User.Name != "" {
+				<div>
+					<b>Тренер:</b> { c.User.Name }
+				</div>
+			}
 			if c.Description != "" {
 				<div>
 					<b>Описание:</b> { c.Description }
