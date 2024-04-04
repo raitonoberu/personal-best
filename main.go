@@ -1,47 +1,36 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/logger"
-	"github.com/raitonoberu/personal-best/app/controller"
-	"github.com/raitonoberu/personal-best/app/middleware"
-	"github.com/raitonoberu/personal-best/db"
+	"database/sql"
+
+	_ "github.com/glebarez/go-sqlite"
+	"github.com/raitonoberu/personal-best/app/handler"
+	"github.com/raitonoberu/personal-best/app/router"
+	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
 func main() {
-	if err := db.Init(".db/db.sqlite"); err != nil {
+	dbConn, err := sql.Open("sqlite", ".db/db.sqlite")
+	if err != nil {
 		panic(err)
 	}
+	db := sqlc.New(dbConn)
 
-	f := fiber.New()
+	router := router.New()
 
-	f.Use(logger.New())
-	f.Use(middleware.Auth)
+	h := handler.New(db)
+	router.POST("/api/login", h.Login)
+	router.POST("/api/register", h.Register)
 
-	f.Get("/login", controller.LoginPage)
-	f.Post("/login", controller.Login)
-	f.Get("/register", controller.RegisterPage)
-	f.Post("/register", controller.Register)
-	f.Get("/logout", controller.Logout)
+	router.GET("/api/users", h.ListUsers)
+	router.GET("/api/users/:id", h.GetUser)
+	// router.PATCH("/api/users", h.UpdateUser)
+	router.DELETE("/api/users", h.DeleteUser)
 
-	f.Get("/profile", controller.GetProfile, middleware.MustAuth)
-	f.Patch("/profile", controller.UpdateProfile, middleware.MustAuth)
-	f.Delete("/profile", controller.DeleteProfile, middleware.MustAuth)
+	// router.POST("/api/competitions", h.CreateCompetition)
+	// router.GET("/api/competitions", h.ListCompetitions)
+	router.GET("/api/competitions/:id", h.GetCompetition)
+	// router.DELETE("/api/competitions/:id", h.DeleteCompetition)
 
-	f.Get("/", controller.ListCompetitions)
-	f.Get("/competitions", controller.ListCompetitions)
-	f.Post("/competitions", controller.NewCompetition, middleware.MustAuth)
-	f.Get("/competitions/:id", controller.ViewCompetition)
-	f.Patch("/competitions/:id", controller.UpdateCompetition, middleware.MustAuth)
-	f.Delete("/competitions/:id", controller.DeleteCompetition, middleware.MustAuth)
-
-	f.Post("/competitions/:comp/players", controller.AddPlayer, middleware.MustAuth)
-	f.Patch("/competitions/:comp/players/:id", controller.UpdatePlayer, middleware.MustAuth)
-	f.Delete("/competitions/:comp/players/:id", controller.DeletePlayer, middleware.MustAuth)
-
-	f.Post("/competitions/:comp/games", controller.AddGame, middleware.MustAuth)
-
-	f.Static("/static", "./static")
-
-	panic(f.Listen(":8080"))
+	panic(router.Start(":8080"))
 }

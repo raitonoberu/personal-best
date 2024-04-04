@@ -2,55 +2,53 @@ package middleware
 
 import (
 	"os"
+	"strings"
 
-	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/raitonoberu/personal-best/app/model"
-	"gorm.io/gorm"
+	"github.com/labstack/echo/v4"
 )
 
 var secret = os.Getenv("SECRET")
 
-func Auth(c fiber.Ctx) error {
-	user := extractUser(c)
-	if user != nil {
-		c.Locals("user", user)
+// Auth sets the user ID in the context.
+// If the user is not authenticated, it sets the user ID to 0.
+func Auth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID := extractUserID(c)
+		c.Set("userID", userID)
+		return next(c)
 	}
-	return c.Next()
 }
 
-func MustAuth(c fiber.Ctx) error {
-	if c.Locals("user") == nil {
-		return redirectToLogin(c)
+// MustAuth sets the user ID in the context.
+// If the user is not authenticated, it returns 401.
+func MustAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if c.Get("userID") == 0 {
+			return c.NoContent(401)
+		}
+		return next(c)
 	}
-	return c.Next()
 }
 
-func extractUser(c fiber.Ctx) *model.User {
-	tokenCookie := c.Cookies("token")
-	if tokenCookie == "" {
-		return nil
+// extractUserID extracts the user ID from the JWT token in the header.
+func extractUserID(c echo.Context) int64 {
+	header := c.Request().Header.Get("Authorization")
+	if header == "" {
+		return 0
 	}
-	token, err := jwt.Parse(tokenCookie, func(t *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
-	})
+
+	tokenString := strings.TrimPrefix(header, "Bearer ")
+	token, err := jwt.Parse(tokenString,
+		func(t *jwt.Token) (interface{}, error) {
+			return []byte(secret), nil
+		})
 	if err != nil || !token.Valid {
-		return nil
+		return 0
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		return claims["userID"].(int64)
 	}
-	user := &model.User{
-		Model: gorm.Model{ID: uint(claims["id"].(float64))},
-		Name:  claims["name"].(string),
-		Email: claims["email"].(string),
-	}
-	return user
-}
-
-func redirectToLogin(c fiber.Ctx) error {
-	c.Response().Header.Set("HX-Redirect", "/login")
-	return c.SendStatus(fiber.StatusUnauthorized)
+	return 0
 }
