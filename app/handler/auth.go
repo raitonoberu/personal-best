@@ -18,9 +18,6 @@ func (h Handler) Register(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	if err := c.Validate(&req); err != nil {
-		return err
-	}
 
 	// generate password hash to store
 	hash, err := bcrypt.GenerateFromPassword(
@@ -48,9 +45,6 @@ func (h Handler) Register(c echo.Context) error {
 func (h Handler) Login(c echo.Context) error {
 	var req model.LoginRequest
 	if err := c.Bind(&req); err != nil {
-		return err
-	}
-	if err := c.Validate(&req); err != nil {
 		return err
 	}
 

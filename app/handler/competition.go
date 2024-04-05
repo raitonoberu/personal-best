@@ -11,9 +11,6 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	if err := c.Validate(&req); err != nil {
-		return err
-	}
 
 	req.TrainerID = getUserID(c)
 
@@ -30,9 +27,6 @@ func (h Handler) GetCompetition(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	if err := c.Validate(&req); err != nil {
-		return err
-	}
 
 	competition, err := h.db.GetCompetition(c.Request().Context(), req.ID)
 	if err != nil {
@@ -44,9 +38,6 @@ func (h Handler) GetCompetition(c echo.Context) error {
 func (h Handler) ListCompetitions(c echo.Context) error {
 	var req model.ListCompetitionsRequest
 	if err := c.Bind(&req); err != nil {
-		return err
-	}
-	if err := c.Validate(&req); err != nil {
 		return err
 	}
 
@@ -61,9 +52,6 @@ func (h Handler) ListCompetitions(c echo.Context) error {
 func (h Handler) DeleteCompetition(c echo.Context) error {
 	var req model.DeleteCompetitionRequest
 	if err := c.Bind(&req); err != nil {
-		return err
-	}
-	if err := c.Validate(&req); err != nil {
 		return err
 	}
 

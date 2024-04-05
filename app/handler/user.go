@@ -11,9 +11,6 @@ func (h Handler) GetUser(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	if err := c.Validate(&req); err != nil {
-		return err
-	}
 
 	user, err := h.db.GetUser(c.Request().Context(), req.ID)
 	if err != nil {
@@ -27,11 +24,9 @@ func (h Handler) ListUsers(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	if err := c.Validate(&req); err != nil {
-		return err
-	}
 
-	users, err := h.db.ListUsers(c.Request().Context(), sqlc.ListUsersParams(req))
+	users, err := h.db.ListUsers(c.Request().Context(),
+		sqlc.ListUsersParams(req))
 	if err != nil {
 		return err
 	}
