@@ -62,7 +62,7 @@ FROM
     competitions
     JOIN users ON users.id = competitions.trainer_id
 WHERE
-    users.id = ?
+    competitions.id = ?
 LIMIT
     1
 `
@@ -93,9 +93,12 @@ func (q *Queries) GetCompetition(ctx context.Context, id int64) (GetCompetitionR
 
 const listCompetitions = `-- name: ListCompetitions :many
 SELECT
-    id, name, description, start_date, trainer_id
+    users.id, users.name, users.email, users.password, users.is_trainer, users.birth_date,
+    competitions.id, competitions.name, competitions.description, competitions.start_date, competitions.trainer_id,
+    COUNT() OVER() as total
 FROM
     competitions
+    JOIN users ON users.id = competitions.trainer_id
 LIMIT
     ? OFFSET ?
 `
@@ -105,21 +108,34 @@ type ListCompetitionsParams struct {
 	Offset int64
 }
 
-func (q *Queries) ListCompetitions(ctx context.Context, arg ListCompetitionsParams) ([]Competition, error) {
+type ListCompetitionsRow struct {
+	User        User
+	Competition Competition
+	Total       int64
+}
+
+func (q *Queries) ListCompetitions(ctx context.Context, arg ListCompetitionsParams) ([]ListCompetitionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listCompetitions, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Competition
+	var items []ListCompetitionsRow
 	for rows.Next() {
-		var i Competition
+		var i ListCompetitionsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.StartDate,
-			&i.TrainerID,
+			&i.User.ID,
+			&i.User.Name,
+			&i.User.Email,
+			&i.User.Password,
+			&i.User.IsTrainer,
+			&i.User.BirthDate,
+			&i.Competition.ID,
+			&i.Competition.Name,
+			&i.Competition.Description,
+			&i.Competition.StartDate,
+			&i.Competition.TrainerID,
+			&i.Total,
 		); err != nil {
 			return nil, err
 		}

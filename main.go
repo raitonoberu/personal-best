@@ -27,10 +27,11 @@ func main() {
 	// router.PATCH("/api/users", h.UpdateUser)
 	router.DELETE("/api/users", h.DeleteUser)
 
-	// router.POST("/api/competitions", h.CreateCompetition)
-	// router.GET("/api/competitions", h.ListCompetitions)
+	router.POST("/api/competitions", h.CreateCompetition)
+	router.GET("/api/competitions", h.ListCompetitions)
 	router.GET("/api/competitions/:id", h.GetCompetition)
-	// router.DELETE("/api/competitions/:id", h.DeleteCompetition)
+	// router.PATCH("/api/competitions", h.UpdateCompetition)
+	router.DELETE("/api/competitions/:id", h.DeleteCompetition)
 
 	panic(router.Start(":8080"))
 }

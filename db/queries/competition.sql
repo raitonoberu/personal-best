@@ -12,15 +12,18 @@ FROM
     competitions
     JOIN users ON users.id = competitions.trainer_id
 WHERE
-    users.id = ?
+    competitions.id = ?
 LIMIT
     1;
 
 -- name: ListCompetitions :many
 SELECT
-    *
+    sqlc.embed(users),
+    sqlc.embed(competitions),
+    COUNT() OVER() as total
 FROM
     competitions
+    JOIN users ON users.id = competitions.trainer_id
 LIMIT
     ? OFFSET ?;
 
