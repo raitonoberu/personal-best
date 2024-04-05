@@ -48,7 +48,7 @@ func extractUserID(c echo.Context) int64 {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		return claims["userID"].(int64)
+		return int64(claims["userID"].(float64))
 	}
 	return 0
 }
