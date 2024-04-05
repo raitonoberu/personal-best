@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -42,7 +41,7 @@ func (h Handler) Register(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, model.NewAuthResponse(user.ID, token))
+	return c.JSON(201, model.NewAuthResponse(user.ID, token))
 }
 
 // Login creates a JWT token for the user and sets it as a cookie.
@@ -62,7 +61,7 @@ func (h Handler) Login(c echo.Context) error {
 
 	// check if password matches the hash in the database
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
-		return c.NoContent(http.StatusForbidden)
+		return c.NoContent(403)
 	}
 
 	token, err := generateToken(user)
