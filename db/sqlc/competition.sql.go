@@ -196,38 +196,30 @@ func (q *Queries) ListCompetitionsByTrainer(ctx context.Context, arg ListCompeti
 	return items, nil
 }
 
-const updateCompetition = `-- name: UpdateCompetition :one
+const updateCompetition = `-- name: UpdateCompetition :exec
 UPDATE
     competitions
 SET
-    name = ?,
-    description = ?,
-    start_date = ?
+    name = coalesce(?1, name),
+    description = coalesce(?2, description),
+    start_date = coalesce(?3, start_date)
 WHERE
-    id = ? RETURNING id, name, description, start_date, trainer_id
+    id = ?4
 `
 
 type UpdateCompetitionParams struct {
-	Name        string
-	Description string
-	StartDate   time.Time
+	Name        *string
+	Description *string
+	StartDate   *time.Time
 	ID          int64
 }
 
-func (q *Queries) UpdateCompetition(ctx context.Context, arg UpdateCompetitionParams) (Competition, error) {
-	row := q.db.QueryRowContext(ctx, updateCompetition,
+func (q *Queries) UpdateCompetition(ctx context.Context, arg UpdateCompetitionParams) error {
+	_, err := q.db.ExecContext(ctx, updateCompetition,
 		arg.Name,
 		arg.Description,
 		arg.StartDate,
 		arg.ID,
 	)
-	var i Competition
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.StartDate,
-		&i.TrainerID,
-	)
-	return i, err
+	return err
 }

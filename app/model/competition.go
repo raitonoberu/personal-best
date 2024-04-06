@@ -78,6 +78,13 @@ func NewListCompetitionsResponse(rows []sqlc.ListCompetitionsRow) ListCompetitio
 	}
 }
 
+type UpdateCompetitionRequest struct {
+	Name        *string    `json:"name"`
+	Description *string    `json:"description"`
+	StartDate   *time.Time `json:"start_date"`
+	ID          int64      `param:"id" validate:"required,gt=0"`
+}
+
 type DeleteCompetitionRequest struct {
 	ID int64 `param:"id" validate:"required,gt=0"`
 }

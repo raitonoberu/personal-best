@@ -37,15 +37,15 @@ WHERE
 LIMIT
     ? OFFSET ?;
 
--- name: UpdateCompetition :one
+-- name: UpdateCompetition :exec
 UPDATE
     competitions
 SET
-    name = ?,
-    description = ?,
-    start_date = ?
+    name = coalesce(sqlc.narg('name'), name),
+    description = coalesce(sqlc.narg('description'), description),
+    start_date = coalesce(sqlc.narg('start_date'), start_date)
 WHERE
-    id = ? RETURNING *;
+    id = sqlc.arg('id');
 
 -- name: DeleteCompetition :exec
 DELETE FROM

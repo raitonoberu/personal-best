@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/raitonoberu/personal-best/app/handler"
+	"github.com/raitonoberu/personal-best/app/middleware"
 	"github.com/raitonoberu/personal-best/app/router"
 	"github.com/raitonoberu/personal-best/db/sqlc"
 )
@@ -24,13 +25,13 @@ func main() {
 
 	router.GET("/api/users", h.ListUsers)
 	router.GET("/api/users/:id", h.GetUser)
-	// router.PATCH("/api/users", h.UpdateUser)
+	router.PATCH("/api/users", h.UpdateUser, middleware.MustAuth)
 	router.DELETE("/api/users", h.DeleteUser)
 
 	router.POST("/api/competitions", h.CreateCompetition)
 	router.GET("/api/competitions", h.ListCompetitions)
 	router.GET("/api/competitions/:id", h.GetCompetition)
-	// router.PATCH("/api/competitions", h.UpdateCompetition)
+	router.PATCH("/api/competitions/:id", h.UpdateCompetition)
 	router.DELETE("/api/competitions/:id", h.DeleteCompetition)
 
 	panic(router.Start(":8080"))

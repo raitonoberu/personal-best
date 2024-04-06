@@ -49,6 +49,20 @@ func (h Handler) ListCompetitions(c echo.Context) error {
 	return c.JSON(200, model.NewListCompetitionsResponse(competitions))
 }
 
+func (h Handler) UpdateCompetition(c echo.Context) error {
+	var req model.UpdateCompetitionRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	err := h.db.UpdateCompetition(c.Request().Context(),
+		sqlc.UpdateCompetitionParams(req))
+	if err != nil {
+		return err
+	}
+	return c.NoContent(204)
+}
+
 func (h Handler) DeleteCompetition(c echo.Context) error {
 	var req model.DeleteCompetitionRequest
 	if err := c.Bind(&req); err != nil {

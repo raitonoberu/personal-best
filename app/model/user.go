@@ -56,3 +56,10 @@ func NewListUsersResponse(rows []sqlc.ListUsersRow) ListUsersResponse {
 		Users: users,
 	}
 }
+
+type UpdateUserRequest struct {
+	Name     *string `json:"name"`
+	Email    *string `json:"email"`
+	Password *string `json:"password"`
+	ID       int64   `json:"-"`
+}

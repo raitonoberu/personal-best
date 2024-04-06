@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
 	"github.com/raitonoberu/personal-best/db/sqlc"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (h Handler) GetUser(c echo.Context) error {
@@ -31,6 +32,31 @@ func (h Handler) ListUsers(c echo.Context) error {
 		return err
 	}
 	return c.JSON(200, model.NewListUsersResponse(users))
+}
+
+func (h Handler) UpdateUser(c echo.Context) error {
+	var req model.UpdateUserRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	req.ID = getUserID(c)
+	if req.Password != nil {
+		hash, err := bcrypt.GenerateFromPassword(
+			[]byte(*req.Password), bcrypt.DefaultCost,
+		)
+		if err != nil {
+			return err
+		}
+		hashStr := string(hash)
+		req.Password = &hashStr
+	}
+
+	if err := h.db.UpdateUser(c.Request().Context(),
+		sqlc.UpdateUserParams(req)); err != nil {
+		return err
+	}
+	return c.NoContent(204)
 }
 
 func (h Handler) DeleteUser(c echo.Context) error {

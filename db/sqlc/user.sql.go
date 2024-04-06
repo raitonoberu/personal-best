@@ -158,39 +158,30 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 	return items, nil
 }
 
-const updateUser = `-- name: UpdateUser :one
+const updateUser = `-- name: UpdateUser :exec
 UPDATE
     users
 SET
-    name = ?,
-    email = ?,
-    password = ?
+    name = coalesce(?1, name),
+    email = coalesce(?2, email),
+    password = coalesce(?3, password)
 WHERE
-    id = ? RETURNING id, name, email, password, is_trainer, birth_date
+    id = ?4
 `
 
 type UpdateUserParams struct {
-	Name     string
-	Email    string
-	Password string
+	Name     *string
+	Email    *string
+	Password *string
 	ID       int64
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser,
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.ExecContext(ctx, updateUser,
 		arg.Name,
 		arg.Email,
 		arg.Password,
 		arg.ID,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Email,
-		&i.Password,
-		&i.IsTrainer,
-		&i.BirthDate,
-	)
-	return i, err
+	return err
 }

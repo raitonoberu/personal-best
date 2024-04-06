@@ -33,15 +33,15 @@ FROM
 LIMIT
     ? OFFSET ?;
 
--- name: UpdateUser :one
+-- name: UpdateUser :exec
 UPDATE
     users
 SET
-    name = ?,
-    email = ?,
-    password = ?
+    name = coalesce(sqlc.narg('name'), name),
+    email = coalesce(sqlc.narg('email'), email),
+    password = coalesce(sqlc.narg('password'), password)
 WHERE
-    id = ? RETURNING *;
+    id = sqlc.arg('id');
 
 -- name: DeleteUser :exec
 DELETE FROM
