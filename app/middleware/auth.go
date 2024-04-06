@@ -24,7 +24,7 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 // If the user is not authenticated, it returns 401.
 func MustAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if c.Get("userID") == 0 {
+		if c.Get("userID") == int64(0) {
 			return c.NoContent(401)
 		}
 		return next(c)
