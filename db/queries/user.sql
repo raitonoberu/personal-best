@@ -1,8 +1,14 @@
 -- name: CreateUser :one
 INSERT INTO
-    users (name, email, password, is_trainer, birth_date)
+    users (role_id, email, password, first_name, last_name, middle_name)
 VALUES
-    (?, ?, ?, ?, ?) RETURNING *;
+    (?, ?, ?, ?, ?, ?) RETURNING *;
+
+-- name: CreatePlayer :one
+INSERT INTO
+    players (user_id, birth_date, is_male, phone, telegram)
+VALUES
+    (?, ?, ?, ?, ?);
 
 -- name: GetUser :one
 SELECT
@@ -24,20 +30,13 @@ WHERE
 LIMIT
     1;
 
--- name: ListUsers :many
-SELECT
-    sqlc.embed(users),
-    COUNT() OVER() as total
-FROM
-    users
-LIMIT
-    ? OFFSET ?;
-
 -- name: UpdateUser :exec
 UPDATE
     users
 SET
-    name = coalesce(sqlc.narg('name'), name),
+    first_name = coalesce(sqlc.narg('first_name'), first_name),
+    last_name = coalesce(sqlc.narg('last_name'), last_name),
+    middle_name = coalesce(sqlc.narg('middle_name'), middle_name),
     email = coalesce(sqlc.narg('email'), email),
     password = coalesce(sqlc.narg('password'), password)
 WHERE
@@ -48,3 +47,4 @@ DELETE FROM
     users
 WHERE
     id = ?;
+

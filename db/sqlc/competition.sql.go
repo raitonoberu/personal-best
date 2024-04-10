@@ -14,7 +14,7 @@ const createCompetition = `-- name: CreateCompetition :one
 INSERT INTO
     competitions (name, description, start_date, trainer_id)
 VALUES
-    (?, ?, ?, ?) RETURNING id, name, description, start_date, trainer_id
+    (?, ?, ?, ?) RETURNING id, trainer_id, name, description, start_date, tours, age, size, closes_at, created_at
 `
 
 type CreateCompetitionParams struct {
@@ -34,10 +34,15 @@ func (q *Queries) CreateCompetition(ctx context.Context, arg CreateCompetitionPa
 	var i Competition
 	err := row.Scan(
 		&i.ID,
+		&i.TrainerID,
 		&i.Name,
 		&i.Description,
 		&i.StartDate,
-		&i.TrainerID,
+		&i.Tours,
+		&i.Age,
+		&i.Size,
+		&i.ClosesAt,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -56,8 +61,8 @@ func (q *Queries) DeleteCompetition(ctx context.Context, id int64) error {
 
 const getCompetition = `-- name: GetCompetition :one
 SELECT
-    users.id, users.name, users.email, users.password, users.is_trainer, users.birth_date,
-    competitions.id, competitions.name, competitions.description, competitions.start_date, competitions.trainer_id
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
+    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.start_date, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at
 FROM
     competitions
     JOIN users ON users.id = competitions.trainer_id
@@ -77,24 +82,31 @@ func (q *Queries) GetCompetition(ctx context.Context, id int64) (GetCompetitionR
 	var i GetCompetitionRow
 	err := row.Scan(
 		&i.User.ID,
-		&i.User.Name,
+		&i.User.RoleID,
 		&i.User.Email,
 		&i.User.Password,
-		&i.User.IsTrainer,
-		&i.User.BirthDate,
+		&i.User.FirstName,
+		&i.User.LastName,
+		&i.User.MiddleName,
+		&i.User.CreatedAt,
 		&i.Competition.ID,
+		&i.Competition.TrainerID,
 		&i.Competition.Name,
 		&i.Competition.Description,
 		&i.Competition.StartDate,
-		&i.Competition.TrainerID,
+		&i.Competition.Tours,
+		&i.Competition.Age,
+		&i.Competition.Size,
+		&i.Competition.ClosesAt,
+		&i.Competition.CreatedAt,
 	)
 	return i, err
 }
 
 const listCompetitions = `-- name: ListCompetitions :many
 SELECT
-    users.id, users.name, users.email, users.password, users.is_trainer, users.birth_date,
-    competitions.id, competitions.name, competitions.description, competitions.start_date, competitions.trainer_id,
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
+    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.start_date, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
     COUNT() OVER() as total
 FROM
     competitions
@@ -125,16 +137,23 @@ func (q *Queries) ListCompetitions(ctx context.Context, arg ListCompetitionsPara
 		var i ListCompetitionsRow
 		if err := rows.Scan(
 			&i.User.ID,
-			&i.User.Name,
+			&i.User.RoleID,
 			&i.User.Email,
 			&i.User.Password,
-			&i.User.IsTrainer,
-			&i.User.BirthDate,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.MiddleName,
+			&i.User.CreatedAt,
 			&i.Competition.ID,
+			&i.Competition.TrainerID,
 			&i.Competition.Name,
 			&i.Competition.Description,
 			&i.Competition.StartDate,
-			&i.Competition.TrainerID,
+			&i.Competition.Tours,
+			&i.Competition.Age,
+			&i.Competition.Size,
+			&i.Competition.ClosesAt,
+			&i.Competition.CreatedAt,
 			&i.Total,
 		); err != nil {
 			return nil, err
@@ -152,7 +171,7 @@ func (q *Queries) ListCompetitions(ctx context.Context, arg ListCompetitionsPara
 
 const listCompetitionsByTrainer = `-- name: ListCompetitionsByTrainer :many
 SELECT
-    id, name, description, start_date, trainer_id
+    id, trainer_id, name, description, start_date, tours, age, size, closes_at, created_at
 FROM
     competitions
 WHERE
@@ -178,10 +197,15 @@ func (q *Queries) ListCompetitionsByTrainer(ctx context.Context, arg ListCompeti
 		var i Competition
 		if err := rows.Scan(
 			&i.ID,
+			&i.TrainerID,
 			&i.Name,
 			&i.Description,
 			&i.StartDate,
-			&i.TrainerID,
+			&i.Tours,
+			&i.Age,
+			&i.Size,
+			&i.ClosesAt,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

@@ -7,40 +7,43 @@ package sqlc
 
 import (
 	"context"
-	"time"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO
-    users (name, email, password, is_trainer, birth_date)
+    users (role_id, email, password, first_name, last_name, middle_name)
 VALUES
-    (?, ?, ?, ?, ?) RETURNING id, name, email, password, is_trainer, birth_date
+    (?, ?, ?, ?, ?, ?) RETURNING id, role_id, email, password, first_name, last_name, middle_name, created_at
 `
 
 type CreateUserParams struct {
-	Name      string
-	Email     string
-	Password  string
-	IsTrainer bool
-	BirthDate *time.Time
+	RoleID     int64
+	Email      string
+	Password   string
+	FirstName  string
+	LastName   string
+	MiddleName string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Name,
+		arg.RoleID,
 		arg.Email,
 		arg.Password,
-		arg.IsTrainer,
-		arg.BirthDate,
+		arg.FirstName,
+		arg.LastName,
+		arg.MiddleName,
 	)
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.RoleID,
 		&i.Email,
 		&i.Password,
-		&i.IsTrainer,
-		&i.BirthDate,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -59,7 +62,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 
 const getUser = `-- name: GetUser :one
 SELECT
-    id, name, email, password, is_trainer, birth_date
+    id, role_id, email, password, first_name, last_name, middle_name, created_at
 FROM
     users
 WHERE
@@ -73,18 +76,20 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.RoleID,
 		&i.Email,
 		&i.Password,
-		&i.IsTrainer,
-		&i.BirthDate,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT
-    id, name, email, password, is_trainer, birth_date
+    id, role_id, email, password, first_name, last_name, middle_name, created_at
 FROM
     users
 WHERE
@@ -98,18 +103,20 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.RoleID,
 		&i.Email,
 		&i.Password,
-		&i.IsTrainer,
-		&i.BirthDate,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
 SELECT
-    users.id, users.name, users.email, users.password, users.is_trainer, users.birth_date,
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
     COUNT() OVER() as total
 FROM
     users
@@ -138,11 +145,13 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 		var i ListUsersRow
 		if err := rows.Scan(
 			&i.User.ID,
-			&i.User.Name,
+			&i.User.RoleID,
 			&i.User.Email,
 			&i.User.Password,
-			&i.User.IsTrainer,
-			&i.User.BirthDate,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.MiddleName,
+			&i.User.CreatedAt,
 			&i.Total,
 		); err != nil {
 			return nil, err
@@ -162,23 +171,29 @@ const updateUser = `-- name: UpdateUser :exec
 UPDATE
     users
 SET
-    name = coalesce(?1, name),
-    email = coalesce(?2, email),
-    password = coalesce(?3, password)
+    first_name = coalesce(?1, first_name),
+    last_name = coalesce(?2, last_name),
+    middle_name = coalesce(?3, middle_name),
+    email = coalesce(?4, email),
+    password = coalesce(?5, password)
 WHERE
-    id = ?4
+    id = ?6
 `
 
 type UpdateUserParams struct {
-	Name     *string
-	Email    *string
-	Password *string
-	ID       int64
+	FirstName  *string
+	LastName   *string
+	MiddleName *string
+	Email      *string
+	Password   *string
+	ID         int64
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser,
-		arg.Name,
+		arg.FirstName,
+		arg.LastName,
+		arg.MiddleName,
 		arg.Email,
 		arg.Password,
 		arg.ID,
