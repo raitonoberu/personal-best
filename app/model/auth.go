@@ -3,11 +3,16 @@ package model
 import "time"
 
 type RegisterRequest struct {
-	Name      string     `json:"name" validate:"required"`
-	Email     string     `json:"email" validate:"required,email"`
-	Password  string     `json:"password" validate:"required"`
-	IsTrainer bool       `json:"is_trainer"`
-	BirthDate *time.Time `json:"birth_date" validate:"required_if=IsTrainer false,excluded_if=IsTrainer true"`
+	Email      string `json:"email" validate:"required,email"`
+	Password   string `json:"password" validate:"required"`
+	FirstName  string `json:"first_name" validate:"required"`
+	LastName   string `json:"last_name" validate:"required"`
+	MiddleName string `json:"middle_name" validate:"required"`
+
+	BirthDate time.Time `json:"birth_date" validate:"required"`
+	IsMale    bool      `json:"is_male" validate:"required"`
+	Phone     string    `json:"phone" validate:"required,e164"`
+	Telegram  string    `json:"telegrem" validate:"required,startswith=@"`
 }
 
 type LoginRequest struct {

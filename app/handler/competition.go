@@ -14,7 +14,7 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 
 	req.TrainerID = getUserID(c)
 
-	comp, err := h.db.CreateCompetition(c.Request().Context(),
+	comp, err := h.queries.CreateCompetition(c.Request().Context(),
 		sqlc.CreateCompetitionParams(req))
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func (h Handler) GetCompetition(c echo.Context) error {
 		return err
 	}
 
-	competition, err := h.db.GetCompetition(c.Request().Context(), req.ID)
+	competition, err := h.queries.GetCompetition(c.Request().Context(), req.ID)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (h Handler) ListCompetitions(c echo.Context) error {
 		return err
 	}
 
-	competitions, err := h.db.ListCompetitions(c.Request().Context(),
+	competitions, err := h.queries.ListCompetitions(c.Request().Context(),
 		sqlc.ListCompetitionsParams(req))
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 		return err
 	}
 
-	err := h.db.UpdateCompetition(c.Request().Context(),
+	err := h.queries.UpdateCompetition(c.Request().Context(),
 		sqlc.UpdateCompetitionParams(req))
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (h Handler) DeleteCompetition(c echo.Context) error {
 		return err
 	}
 
-	if err := h.db.DeleteCompetition(c.Request().Context(), req.ID); err != nil {
+	if err := h.queries.DeleteCompetition(c.Request().Context(), req.ID); err != nil {
 		return err
 	}
 	return c.NoContent(204)

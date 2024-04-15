@@ -28,8 +28,37 @@ func (h Handler) Register(c echo.Context) error {
 	}
 	req.Password = string(hash)
 
-	user, err := h.db.CreateUser(c.Request().Context(),
-		sqlc.CreateUserParams(req))
+	tx, err := h.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	qtx := h.queries.WithTx(tx)
+
+	user, err := qtx.CreateUser(c.Request().Context(),
+		sqlc.CreateUserParams{
+			RoleID:     3, // TODO
+			Email:      req.Email,
+			Password:   req.Password,
+			FirstName:  req.FirstName,
+			LastName:   req.LastName,
+			MiddleName: req.MiddleName,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = qtx.CreatePlayer(c.Request().Context(),
+		sqlc.CreatePlayerParams{
+			UserID:    user.ID,
+			IsMale:    req.IsMale,
+			Phone:     req.Phone,
+			Telegram:  req.Telegram,
+			BirthDate: req.BirthDate,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -38,6 +67,11 @@ func (h Handler) Register(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
 	return c.JSON(201, model.NewAuthResponse(user.ID, token))
 }
 
@@ -48,7 +82,7 @@ func (h Handler) Login(c echo.Context) error {
 		return err
 	}
 
-	user, err := h.db.GetUserByEmail(c.Request().Context(), req.Email)
+	user, err := h.queries.GetUserByEmail(c.Request().Context(), req.Email)
 	if err != nil {
 		return err
 	}

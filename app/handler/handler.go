@@ -1,13 +1,21 @@
 package handler
 
-import "github.com/raitonoberu/personal-best/db/sqlc"
+import (
+	"database/sql"
+
+	"github.com/raitonoberu/personal-best/db/sqlc"
+)
 
 type Handler struct {
-	db *sqlc.Queries
+	db      *sql.DB
+	queries *sqlc.Queries
 }
 
-func New(db *sqlc.Queries) Handler {
+func New(db *sql.DB) Handler {
+	queries := sqlc.New(db)
+
 	return Handler{
-		db: db,
+		db:      db,
+		queries: queries,
 	}
 }

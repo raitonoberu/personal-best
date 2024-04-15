@@ -2,13 +2,15 @@
 INSERT INTO
     users (role_id, email, password, first_name, last_name, middle_name)
 VALUES
-    (?, ?, ?, ?, ?, ?) RETURNING *;
+    (?, ?, ?, ?, ?, ?)
+RETURNING *;
 
 -- name: CreatePlayer :one
 INSERT INTO
     players (user_id, birth_date, is_male, phone, telegram)
 VALUES
-    (?, ?, ?, ?, ?);
+    (?, ?, ?, ?, ?)
+RETURNING *;
 
 -- name: GetUser :one
 SELECT

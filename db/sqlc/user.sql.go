@@ -7,13 +7,53 @@ package sqlc
 
 import (
 	"context"
+	"time"
 )
+
+const createPlayer = `-- name: CreatePlayer :one
+INSERT INTO
+    players (user_id, birth_date, is_male, phone, telegram)
+VALUES
+    (?, ?, ?, ?, ?)
+RETURNING user_id, birth_date, is_male, phone, telegram, is_verified, preparation, position
+`
+
+type CreatePlayerParams struct {
+	UserID    int64
+	BirthDate time.Time
+	IsMale    bool
+	Phone     string
+	Telegram  string
+}
+
+func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error) {
+	row := q.db.QueryRowContext(ctx, createPlayer,
+		arg.UserID,
+		arg.BirthDate,
+		arg.IsMale,
+		arg.Phone,
+		arg.Telegram,
+	)
+	var i Player
+	err := row.Scan(
+		&i.UserID,
+		&i.BirthDate,
+		&i.IsMale,
+		&i.Phone,
+		&i.Telegram,
+		&i.IsVerified,
+		&i.Preparation,
+		&i.Position,
+	)
+	return i, err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO
     users (role_id, email, password, first_name, last_name, middle_name)
 VALUES
-    (?, ?, ?, ?, ?, ?) RETURNING id, role_id, email, password, first_name, last_name, middle_name, created_at
+    (?, ?, ?, ?, ?, ?)
+RETURNING id, role_id, email, password, first_name, last_name, middle_name, created_at
 `
 
 type CreateUserParams struct {
@@ -112,59 +152,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.CreatedAt,
 	)
 	return i, err
-}
-
-const listUsers = `-- name: ListUsers :many
-SELECT
-    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
-    COUNT() OVER() as total
-FROM
-    users
-LIMIT
-    ? OFFSET ?
-`
-
-type ListUsersParams struct {
-	Limit  int64
-	Offset int64
-}
-
-type ListUsersRow struct {
-	User  User
-	Total int64
-}
-
-func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error) {
-	rows, err := q.db.QueryContext(ctx, listUsers, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListUsersRow
-	for rows.Next() {
-		var i ListUsersRow
-		if err := rows.Scan(
-			&i.User.ID,
-			&i.User.RoleID,
-			&i.User.Email,
-			&i.User.Password,
-			&i.User.FirstName,
-			&i.User.LastName,
-			&i.User.MiddleName,
-			&i.User.CreatedAt,
-			&i.Total,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const updateUser = `-- name: UpdateUser :exec

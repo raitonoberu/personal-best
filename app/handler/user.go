@@ -13,26 +13,26 @@ func (h Handler) GetUser(c echo.Context) error {
 		return err
 	}
 
-	user, err := h.db.GetUser(c.Request().Context(), req.ID)
+	user, err := h.queries.GetUser(c.Request().Context(), req.ID)
 	if err != nil {
 		return err
 	}
 	return c.JSON(200, model.NewGetUserResponse(user))
 }
 
-func (h Handler) ListUsers(c echo.Context) error {
-	var req model.ListUsersRequest
-	if err := c.Bind(&req); err != nil {
-		return err
-	}
-
-	users, err := h.db.ListUsers(c.Request().Context(),
-		sqlc.ListUsersParams(req))
-	if err != nil {
-		return err
-	}
-	return c.JSON(200, model.NewListUsersResponse(users))
-}
+// func (h Handler) ListUsers(c echo.Context) error {
+// 	var req model.ListUsersRequest
+// 	if err := c.Bind(&req); err != nil {
+// 		return err
+// 	}
+//
+// 	users, err := h.queries.ListUsers(c.Request().Context(),
+// 		sqlc.ListUsersParams(req))
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return c.JSON(200, model.NewListUsersResponse(users))
+// }
 
 func (h Handler) UpdateUser(c echo.Context) error {
 	var req model.UpdateUserRequest
@@ -52,7 +52,7 @@ func (h Handler) UpdateUser(c echo.Context) error {
 		req.Password = &hashStr
 	}
 
-	if err := h.db.UpdateUser(c.Request().Context(),
+	if err := h.queries.UpdateUser(c.Request().Context(),
 		sqlc.UpdateUserParams(req)); err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (h Handler) UpdateUser(c echo.Context) error {
 }
 
 func (h Handler) DeleteUser(c echo.Context) error {
-	if err := h.db.DeleteUser(c.Request().Context(), getUserID(c)); err != nil {
+	if err := h.queries.DeleteUser(c.Request().Context(), getUserID(c)); err != nil {
 		return err
 	}
 	return c.NoContent(204)
