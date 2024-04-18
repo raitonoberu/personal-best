@@ -9,7 +9,7 @@ CREATE TABLE users (
     last_name TEXT NOT NULL,
     middle_name TEXT NOT NULL,
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
@@ -47,7 +47,7 @@ CREATE TABLE documents (
     url TEXT NOT NULL,
 
     expires_at DATETIME NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (player_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -64,7 +64,7 @@ CREATE TABLE competitions (
     size INTEGER NOT NULL,
     closes_at DATETIME NOT NULL,
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (trainer_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -85,7 +85,7 @@ CREATE TABLE registractions (
     is_approved BOOL NOT NULL,
     is_dropped BOOL NOT NULL,
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (competition_id, player_id),
     FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE,

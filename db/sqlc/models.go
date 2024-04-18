@@ -18,7 +18,7 @@ type Competition struct {
 	Age         int64
 	Size        int64
 	ClosesAt    time.Time
-	CreatedAt   *time.Time
+	CreatedAt   time.Time
 }
 
 type CompetitionDay struct {
@@ -34,7 +34,7 @@ type Document struct {
 	Name      string
 	Url       string
 	ExpiresAt time.Time
-	CreatedAt *time.Time
+	CreatedAt time.Time
 }
 
 type Match struct {
@@ -68,7 +68,7 @@ type Registraction struct {
 	PlayerID      int64
 	IsApproved    bool
 	IsDropped     bool
-	CreatedAt     *time.Time
+	CreatedAt     time.Time
 }
 
 type Role struct {
@@ -89,5 +89,5 @@ type User struct {
 	FirstName  string
 	LastName   string
 	MiddleName string
-	CreatedAt  *time.Time
+	CreatedAt  time.Time
 }
