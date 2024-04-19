@@ -12,7 +12,7 @@ type RegisterRequest struct {
 	BirthDate time.Time `json:"birth_date" validate:"required"`
 	IsMale    bool      `json:"is_male" validate:"required"`
 	Phone     string    `json:"phone" validate:"required,e164"`
-	Telegram  string    `json:"telegrem" validate:"required,startswith=@"`
+	Telegram  string    `json:"telegram" validate:"required,startswith=@"`
 }
 
 type LoginRequest struct {
