@@ -75,7 +75,7 @@ CREATE TABLE competition_days (
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
 
-    PRIMARY KEY (competition_id, day),
+    PRIMARY KEY (competition_id, date),
     FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE
 );
 
