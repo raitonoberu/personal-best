@@ -2,6 +2,7 @@ package handler
 
 import (
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -19,14 +20,15 @@ func (h Handler) Register(c echo.Context) error {
 		return err
 	}
 
+	birthDate, err := time.Parse("2006-01-02", req.BirthDate)
+
 	// generate password hash to store
-	hash, err := bcrypt.GenerateFromPassword(
+	passwordHash, err := bcrypt.GenerateFromPassword(
 		[]byte(req.Password), bcrypt.DefaultCost,
 	)
 	if err != nil {
 		return err
 	}
-	req.Password = string(hash)
 
 	tx, err := h.db.Begin()
 	if err != nil {
@@ -40,7 +42,7 @@ func (h Handler) Register(c echo.Context) error {
 		sqlc.CreateUserParams{
 			RoleID:     3, // TODO
 			Email:      req.Email,
-			Password:   req.Password,
+			Password:   string(passwordHash),
 			FirstName:  req.FirstName,
 			LastName:   req.LastName,
 			MiddleName: req.MiddleName,
@@ -56,7 +58,7 @@ func (h Handler) Register(c echo.Context) error {
 			IsMale:    req.IsMale,
 			Phone:     req.Phone,
 			Telegram:  req.Telegram,
-			BirthDate: req.BirthDate,
+			BirthDate: birthDate,
 		},
 	)
 	if err != nil {

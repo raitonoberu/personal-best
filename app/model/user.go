@@ -8,21 +8,48 @@ type GetUserRequest struct {
 	ID int64 `param:"id" validate:"required,gt=0"`
 }
 
+type Player struct {
+	BirthDate  string `json:"birth_date"`
+	IsMale     bool   `json:"is_male"`
+	Phone      string `json:"phone"`
+	Telegram   string `json:"telegram"`
+	IsVerified bool   `json:"is_verified"`
+
+	Preparation *string `json:"preparation,omitempty"`
+	Position    *string `json:"position,omitempty"`
+}
+
 type GetUserResponse struct {
 	ID         int64  `json:"id"`
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
 	MiddleName string `json:"middle_name"`
 	Email      string `json:"email"`
+
+	Player *Player `json:"player,omitempty"`
 }
 
-func NewGetUserResponse(m sqlc.User) GetUserResponse {
+func NewGetUserResponse(u sqlc.User, p sqlc.Player) GetUserResponse {
+	var player *Player
+	if p.UserID != 0 {
+		player = &Player{
+			BirthDate:   p.BirthDate.Format("2006-01-02"),
+			IsMale:      p.IsMale,
+			Phone:       p.Phone,
+			Telegram:    p.Telegram,
+			IsVerified:  p.IsVerified,
+			Preparation: p.Preparation,
+			Position:    p.Position,
+		}
+	}
+
 	return GetUserResponse{
-		ID:         m.ID,
-		FirstName:  m.FirstName,
-		LastName:   m.LastName,
-		MiddleName: m.MiddleName,
-		Email:      m.Email,
+		ID:         u.ID,
+		FirstName:  u.FirstName,
+		LastName:   u.LastName,
+		MiddleName: u.MiddleName,
+		Email:      u.Email,
+		Player:     player,
 	}
 }
 

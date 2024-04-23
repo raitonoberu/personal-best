@@ -1,7 +1,5 @@
 package model
 
-import "time"
-
 type RegisterRequest struct {
 	Email      string `json:"email" validate:"required,email"`
 	Password   string `json:"password" validate:"required"`
@@ -9,10 +7,10 @@ type RegisterRequest struct {
 	LastName   string `json:"last_name" validate:"required"`
 	MiddleName string `json:"middle_name" validate:"required"`
 
-	BirthDate time.Time `json:"birth_date" validate:"required"`
-	IsMale    bool      `json:"is_male" validate:"required"`
-	Phone     string    `json:"phone" validate:"required,e164"`
-	Telegram  string    `json:"telegram" validate:"required,startswith=@"`
+	BirthDate string `json:"birth_date" validate:"required,date"`
+	IsMale    bool   `json:"is_male" validate:"required"`
+	Phone     string `json:"phone" validate:"required,e164"`
+	Telegram  string `json:"telegram" validate:"required,startswith=@"` // TODO: more validations
 }
 
 type LoginRequest struct {

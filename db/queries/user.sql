@@ -7,16 +7,18 @@ RETURNING *;
 
 -- name: CreatePlayer :one
 INSERT INTO
-    players (user_id, birth_date, is_male, phone, telegram)
+    players (user_id, birth_date, is_male, phone, telegram, is_verified)
 VALUES
-    (?, ?, ?, ?, ?)
+    (?, ?, ?, ?, ?, false)
 RETURNING *;
 
 -- name: GetUser :one
 SELECT
-    *
+    sqlc.embed(users), sqlc.embed(players)
 FROM
     users
+LEFT JOIN
+    players ON users.id = players.user_id
 WHERE
     id = ?
 LIMIT

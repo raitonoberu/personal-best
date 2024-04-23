@@ -12,9 +12,9 @@ import (
 
 const createPlayer = `-- name: CreatePlayer :one
 INSERT INTO
-    players (user_id, birth_date, is_male, phone, telegram)
+    players (user_id, birth_date, is_male, phone, telegram, is_verified)
 VALUES
-    (?, ?, ?, ?, ?)
+    (?, ?, ?, ?, ?, false)
 RETURNING user_id, birth_date, is_male, phone, telegram, is_verified, preparation, position
 `
 
@@ -102,27 +102,42 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 
 const getUser = `-- name: GetUser :one
 SELECT
-    id, role_id, email, password, first_name, last_name, middle_name, created_at
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.is_verified, players.preparation, players.position
 FROM
     users
+LEFT JOIN
+    players ON users.id = players.user_id
 WHERE
     id = ?
 LIMIT
     1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+type GetUserRow struct {
+	User   User
+	Player Player
+}
+
+func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
-	var i User
+	var i GetUserRow
 	err := row.Scan(
-		&i.ID,
-		&i.RoleID,
-		&i.Email,
-		&i.Password,
-		&i.FirstName,
-		&i.LastName,
-		&i.MiddleName,
-		&i.CreatedAt,
+		&i.User.ID,
+		&i.User.RoleID,
+		&i.User.Email,
+		&i.User.Password,
+		&i.User.FirstName,
+		&i.User.LastName,
+		&i.User.MiddleName,
+		&i.User.CreatedAt,
+		&i.Player.UserID,
+		&i.Player.BirthDate,
+		&i.Player.IsMale,
+		&i.Player.Phone,
+		&i.Player.Telegram,
+		&i.Player.IsVerified,
+		&i.Player.Preparation,
+		&i.Player.Position,
 	)
 	return i, err
 }

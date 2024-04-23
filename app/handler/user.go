@@ -17,7 +17,7 @@ func (h Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, model.NewGetUserResponse(user))
+	return c.JSON(200, model.NewGetUserResponse(user.User, user.Player))
 }
 
 // func (h Handler) ListUsers(c echo.Context) error {

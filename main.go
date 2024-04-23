@@ -24,13 +24,13 @@ func main() {
 	// router.GET("/api/users", h.ListUsers)
 	router.GET("/api/users/:id", h.GetUser)
 	router.PATCH("/api/users", h.UpdateUser, middleware.MustAuth)
-	router.DELETE("/api/users", h.DeleteUser)
+	router.DELETE("/api/users", h.DeleteUser, middleware.MustAuth)
 
-	router.POST("/api/competitions", h.CreateCompetition)
+	router.POST("/api/competitions", h.CreateCompetition, middleware.MustAuth)
 	router.GET("/api/competitions", h.ListCompetitions)
 	router.GET("/api/competitions/:id", h.GetCompetition)
-	router.PATCH("/api/competitions/:id", h.UpdateCompetition)
-	router.DELETE("/api/competitions/:id", h.DeleteCompetition)
+	router.PATCH("/api/competitions/:id", h.UpdateCompetition, middleware.MustAuth)
+	router.DELETE("/api/competitions/:id", h.DeleteCompetition, middleware.MustAuth)
 
 	panic(router.Start(":8080"))
 }
