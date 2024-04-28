@@ -1,0 +1,180 @@
+definitions:
+  model.AuthResponse:
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
+  model.GetUserResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      player:
+        $ref: '#/definitions/model.Player'
+    type: object
+  model.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.Player:
+    properties:
+      birth_date:
+        type: string
+      is_male:
+        type: boolean
+      is_verified:
+        type: boolean
+      phone:
+        type: string
+      position:
+        type: string
+      preparation:
+        type: string
+      telegram:
+        type: string
+    type: object
+  model.RegisterRequest:
+    properties:
+      birth_date:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      is_male:
+        type: boolean
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      telegram:
+        description: 'TODO: more validations'
+        type: string
+    required:
+    - birth_date
+    - email
+    - first_name
+    - is_male
+    - last_name
+    - middle_name
+    - password
+    - phone
+    - telegram
+    type: object
+info:
+  contact:
+    email: raitonoberu@mail.ru
+    name: raitonoberu
+    url: http://raitonobe.ru
+  description: neмытьlE yблюdki
+  title: Personal Best API
+  version: "0.1"
+paths:
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user, return JWT token & ID
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+      summary: Login user
+      tags:
+      - auth
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Register new unverified player
+        "birth_date" must have format 1889-04-20
+        "phone" must start with +
+        "telegram" must start with @
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+      summary: Register user
+      tags:
+      - auth
+  /api/users:
+    delete:
+      description: Delete current user
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Delete user
+      tags:
+      - user
+  /api/users/{id}:
+    get:
+      description: |-
+        Return single user by ID
+        "player" may not be present (trainer / admin)
+        player.preparation, player.position may not be present
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetUserResponse'
+      security:
+      - Bearer: []
+      summary: Get user
+      tags:
+      - user
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

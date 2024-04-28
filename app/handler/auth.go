@@ -13,7 +13,17 @@ import (
 
 var secret = os.Getenv("SECRET")
 
-// Register creates a new user and sets a JWT token cookie.
+// @Summary Register user
+// @Description Register new unverified player
+// @Description "birth_date" must have format 1889-04-20
+// @Description "phone" must start with +
+// @Description "telegram" must start with @
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.RegisterRequest true "body"
+// @Success 200 {object} model.AuthResponse
+// @Router /api/register [post]
 func (h Handler) Register(c echo.Context) error {
 	var req model.RegisterRequest
 	if err := c.Bind(&req); err != nil {
@@ -77,7 +87,14 @@ func (h Handler) Register(c echo.Context) error {
 	return c.JSON(201, model.NewAuthResponse(user.ID, token))
 }
 
-// Login creates a JWT token for the user and sets it as a cookie.
+// @Summary Login user
+// @Description Login user, return JWT token & ID
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.LoginRequest true "body"
+// @Success 200 {object} model.AuthResponse
+// @Router /api/login [post]
 func (h Handler) Login(c echo.Context) error {
 	var req model.LoginRequest
 	if err := c.Bind(&req); err != nil {

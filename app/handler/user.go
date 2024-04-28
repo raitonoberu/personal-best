@@ -7,6 +7,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// @Summary Get user
+// @Security Bearer
+// @Description Return single user by ID
+// @Description "player" may not be present (trainer / admin)
+// @Description player.preparation, player.position may not be present
+// @Tags user
+// @Produce json
+// @Param request path model.GetUserRequest true "path"
+// @Success 200 {object} model.GetUserResponse
+// @Router /api/users/{id} [get]
 func (h Handler) GetUser(c echo.Context) error {
 	var req model.GetUserRequest
 	if err := c.Bind(&req); err != nil {
@@ -59,6 +69,12 @@ func (h Handler) UpdateUser(c echo.Context) error {
 	return c.NoContent(204)
 }
 
+// @Summary Delete user
+// @Security Bearer
+// @Description Delete current user
+// @Tags user
+// @Success 204
+// @Router /api/users [delete]
 func (h Handler) DeleteUser(c echo.Context) error {
 	if err := h.queries.DeleteUser(c.Request().Context(), getUserID(c)); err != nil {
 		return err

@@ -5,7 +5,7 @@ dev:
 	air
 
 gen:
-	sqlc generate
+	swag init && sqlc generate
 
 migrate:
 	 mkdir -p .db && dbmate up
