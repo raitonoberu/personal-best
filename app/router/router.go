@@ -17,6 +17,7 @@ func New() *echo.Echo {
 	e.Binder = newBinder()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 	e.Use(middleware.Auth)
 
 	e.GET("/api/docs/*", echoSwagger.WrapHandler)
