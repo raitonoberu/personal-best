@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
 	"os"
 	"time"
 
@@ -106,12 +108,15 @@ func (h Handler) Login(c echo.Context) error {
 
 	user, err := h.queries.GetUserByEmail(c.Request().Context(), req.Email)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 
 	// check if password matches the hash in the database
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
-		return c.NoContent(403)
+		return ErrWrongPassword
 	}
 
 	token, err := generateToken(user)

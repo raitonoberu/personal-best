@@ -20,16 +20,16 @@ type PlayerResponse struct {
 
 type GetUserResponse struct {
 	ID         int64  `json:"id"`
+	RoleID     int64  `json:"role_id"`
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
 	MiddleName string `json:"middle_name"`
 	Email      string `json:"email"`
 
-	Role   RoleResponse    `json:"role"`
 	Player *PlayerResponse `json:"player,omitempty"`
 }
 
-func NewGetUserResponse(u sqlc.User, p sqlc.Player, r sqlc.Role) GetUserResponse {
+func NewGetUserResponse(u sqlc.User, p sqlc.Player) GetUserResponse {
 	var player *PlayerResponse
 	if p.UserID != 0 {
 		player = &PlayerResponse{
@@ -44,11 +44,11 @@ func NewGetUserResponse(u sqlc.User, p sqlc.Player, r sqlc.Role) GetUserResponse
 
 	return GetUserResponse{
 		ID:         u.ID,
+		RoleID:     u.RoleID,
 		FirstName:  u.FirstName,
 		LastName:   u.LastName,
 		MiddleName: u.MiddleName,
 		Email:      u.Email,
-		Role:       RoleResponse(r),
 		Player:     player,
 	}
 }

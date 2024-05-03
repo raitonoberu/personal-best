@@ -20,8 +20,8 @@ definitions:
         type: string
       player:
         $ref: '#/definitions/model.PlayerResponse'
-      role:
-        $ref: '#/definitions/model.RoleResponse'
+      role_id:
+        type: integer
     type: object
   model.LoginRequest:
     properties:
@@ -106,23 +106,6 @@ info:
   title: Personal Best API
   version: "0.1"
 paths:
-  /api/admin/roles:
-    get:
-      description: List all available roles
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.RoleResponse'
-            type: array
-      security:
-      - Bearer: []
-      summary: List roles
-      tags:
-      - admin
   /api/login:
     post:
       consumes:
@@ -171,6 +154,23 @@ paths:
       summary: Register user
       tags:
       - auth
+  /api/roles:
+    get:
+      description: List all available roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.RoleResponse'
+            type: array
+      security:
+      - Bearer: []
+      summary: List roles
+      tags:
+      - roles
   /api/users:
     delete:
       description: Delete current user

@@ -8,10 +8,10 @@ import (
 // @Summary List roles
 // @Security Bearer
 // @Description List all available roles
-// @Tags admin
+// @Tags roles
 // @Produce json
 // @Success 200 {object} []model.RoleResponse
-// @Router /api/admin/roles [get]
+// @Router /api/roles [get]
 func (h Handler) ListRoles(c echo.Context) error {
 	roles, err := h.queries.ListRoles(c.Request().Context())
 	if err != nil {

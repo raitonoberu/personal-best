@@ -33,7 +33,7 @@ func (h Handler) GetUser(c echo.Context) error {
 		}
 		return err
 	}
-	return c.JSON(200, model.NewGetUserResponse(user.User, user.Player, user.Role))
+	return c.JSON(200, model.NewGetUserResponse(user.User, user.Player))
 }
 
 func (h Handler) UpdateUser(c echo.Context) error {

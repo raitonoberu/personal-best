@@ -14,13 +14,11 @@ RETURNING *;
 
 -- name: GetUser :one
 SELECT
-    sqlc.embed(users), sqlc.embed(players), sqlc.embed(roles)
+    sqlc.embed(users), sqlc.embed(players)
 FROM
     users
 LEFT JOIN
     players ON users.id = players.user_id
-JOIN
-    roles ON users.role_id = roles.id
 WHERE
     users.id = ?
 LIMIT
