@@ -10,6 +10,9 @@ gen:
 migrate:
 	 mkdir -p .db && dbmate up
 
+rollback:
+	dbmate rollback
+
 build:
 	docker compose build
 
