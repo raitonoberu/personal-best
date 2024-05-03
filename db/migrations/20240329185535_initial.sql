@@ -79,7 +79,7 @@ CREATE TABLE competition_days (
     FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE
 );
 
-CREATE TABLE registractions (
+CREATE TABLE registrations (
     competition_id INTEGER NOT NULL,
     player_id INTEGER NOT NULL,
     is_approved BOOL NOT NULL,
@@ -123,4 +123,5 @@ DROP TABLE competitions;
 DROP TABLE competition_days;
 DROP TABLE registrations;
 DROP TABLE matches;
+DROP TABLE match_players;
 

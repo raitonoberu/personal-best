@@ -19,7 +19,9 @@ definitions:
       middle_name:
         type: string
       player:
-        $ref: '#/definitions/model.Player'
+        $ref: '#/definitions/model.PlayerResponse'
+      role:
+        $ref: '#/definitions/model.RoleResponse'
     type: object
   model.LoginRequest:
     properties:
@@ -31,13 +33,11 @@ definitions:
     - email
     - password
     type: object
-  model.Player:
+  model.PlayerResponse:
     properties:
       birth_date:
         type: string
       is_male:
-        type: boolean
-      is_verified:
         type: boolean
       phone:
         type: string
@@ -80,6 +80,23 @@ definitions:
     - phone
     - telegram
     type: object
+  model.RoleResponse:
+    properties:
+      can_create:
+        type: boolean
+      can_participate:
+        type: boolean
+      can_view:
+        type: boolean
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      is_free:
+        type: boolean
+      name:
+        type: string
+    type: object
 info:
   contact:
     email: raitonoberu@mail.ru
@@ -89,6 +106,23 @@ info:
   title: Personal Best API
   version: "0.1"
 paths:
+  /api/admin/roles:
+    get:
+      description: List all available roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.RoleResponse'
+            type: array
+      security:
+      - Bearer: []
+      summary: List roles
+      tags:
+      - admin
   /api/login:
     post:
       consumes:

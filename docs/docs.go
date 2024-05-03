@@ -19,6 +19,34 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/admin/roles": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List all available roles",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "List roles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.RoleResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Login user, return JWT token \u0026 ID",
@@ -171,7 +199,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "player": {
-                    "$ref": "#/definitions/model.Player"
+                    "$ref": "#/definitions/model.PlayerResponse"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.RoleResponse"
                 }
             }
         },
@@ -190,16 +221,13 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Player": {
+        "model.PlayerResponse": {
             "type": "object",
             "properties": {
                 "birth_date": {
                     "type": "string"
                 },
                 "is_male": {
-                    "type": "boolean"
-                },
-                "is_verified": {
                     "type": "boolean"
                 },
                 "phone": {
@@ -256,6 +284,32 @@ const docTemplate = `{
                 },
                 "telegram": {
                     "description": "TODO: more validations",
+                    "type": "string"
+                }
+            }
+        },
+        "model.RoleResponse": {
+            "type": "object",
+            "properties": {
+                "can_create": {
+                    "type": "boolean"
+                },
+                "can_participate": {
+                    "type": "boolean"
+                },
+                "can_view": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_admin": {
+                    "type": "boolean"
+                },
+                "is_free": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 }
             }

@@ -44,5 +44,7 @@ func main() {
 	router.PATCH("/api/competitions/:id", h.UpdateCompetition, middleware.MustAuth)
 	router.DELETE("/api/competitions/:id", h.DeleteCompetition, middleware.MustAuth)
 
+	router.GET("/api/admin/roles", h.ListRoles, middleware.MustAuth)
+
 	panic(router.Start(":8080"))
 }

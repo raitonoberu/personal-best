@@ -31,6 +31,9 @@ func (h Handler) Register(c echo.Context) error {
 	}
 
 	birthDate, err := time.Parse("2006-01-02", req.BirthDate)
+	if err != nil {
+		return err
+	}
 
 	// generate password hash to store
 	passwordHash, err := bcrypt.GenerateFromPassword(
@@ -50,7 +53,7 @@ func (h Handler) Register(c echo.Context) error {
 
 	user, err := qtx.CreateUser(c.Request().Context(),
 		sqlc.CreateUserParams{
-			RoleID:     3, // TODO
+			RoleID:     3, // Unverified User
 			Email:      req.Email,
 			Password:   string(passwordHash),
 			FirstName:  req.FirstName,

@@ -27,22 +27,8 @@ func (h Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, model.NewGetUserResponse(user.User, user.Player))
+	return c.JSON(200, model.NewGetUserResponse(user.User, user.Player, user.Role))
 }
-
-// func (h Handler) ListUsers(c echo.Context) error {
-// 	var req model.ListUsersRequest
-// 	if err := c.Bind(&req); err != nil {
-// 		return err
-// 	}
-//
-// 	users, err := h.queries.ListUsers(c.Request().Context(),
-// 		sqlc.ListUsersParams(req))
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return c.JSON(200, model.NewListUsersResponse(users))
-// }
 
 func (h Handler) UpdateUser(c echo.Context) error {
 	var req model.UpdateUserRequest

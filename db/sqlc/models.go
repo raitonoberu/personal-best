@@ -63,7 +63,7 @@ type Player struct {
 	Position    *string
 }
 
-type Registraction struct {
+type Registration struct {
 	CompetitionID int64
 	PlayerID      int64
 	IsApproved    bool

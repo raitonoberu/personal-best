@@ -41,7 +41,7 @@ func NewGetCompetitionResponse(row sqlc.GetCompetitionRow) GetCompetitionRespons
 		Name:        row.Competition.Name,
 		Description: row.Competition.Description,
 		StartDate:   row.Competition.StartDate,
-		Trainer:     NewGetUserResponse(row.User, sqlc.Player{}),
+		Trainer:     NewGetUserResponse(row.User, sqlc.Player{}, sqlc.Role{}),
 	}
 }
 
