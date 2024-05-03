@@ -31,7 +31,6 @@ CREATE TABLE players (
     is_male BOOL NOT NULL,
     phone TEXT NOT NULL,
     telegram TEXT NOT NULL,
-    is_verified BOOL NOT NULL,
 
     preparation TEXT,
     position TEXT,

@@ -58,7 +58,6 @@ type Player struct {
 	IsMale      bool
 	Phone       string
 	Telegram    string
-	IsVerified  bool
 	Preparation *string
 	Position    *string
 }

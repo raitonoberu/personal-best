@@ -15,7 +15,7 @@ INSERT INTO
     players (user_id, birth_date, is_male, phone, telegram)
 VALUES
     (?, ?, ?, ?, ?)
-RETURNING user_id, birth_date, is_male, phone, telegram, is_verified, preparation, position
+RETURNING user_id, birth_date, is_male, phone, telegram, preparation, position
 `
 
 type CreatePlayerParams struct {
@@ -41,7 +41,6 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 		&i.IsMale,
 		&i.Phone,
 		&i.Telegram,
-		&i.IsVerified,
 		&i.Preparation,
 		&i.Position,
 	)
@@ -102,7 +101,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 
 const getUser = `-- name: GetUser :one
 SELECT
-    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.is_verified, players.preparation, players.position, roles.id, roles.name, roles.can_view, roles.can_participate, roles.can_create, roles.is_free, roles.is_admin
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.preparation, players.position, roles.id, roles.name, roles.can_view, roles.can_participate, roles.can_create, roles.is_free, roles.is_admin
 FROM
     users
 LEFT JOIN
@@ -138,7 +137,6 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 		&i.Player.IsMale,
 		&i.Player.Phone,
 		&i.Player.Telegram,
-		&i.Player.IsVerified,
 		&i.Player.Preparation,
 		&i.Player.Position,
 		&i.Role.ID,
