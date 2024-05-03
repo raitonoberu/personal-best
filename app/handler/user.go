@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
+
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
 	"github.com/raitonoberu/personal-best/db/sqlc"
@@ -25,6 +28,9 @@ func (h Handler) GetUser(c echo.Context) error {
 
 	user, err := h.queries.GetUser(c.Request().Context(), req.ID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 	return c.JSON(200, model.NewGetUserResponse(user.User, user.Player, user.Role))
@@ -49,7 +55,11 @@ func (h Handler) UpdateUser(c echo.Context) error {
 	}
 
 	if err := h.queries.UpdateUser(c.Request().Context(),
-		sqlc.UpdateUserParams(req)); err != nil {
+		sqlc.UpdateUserParams(req),
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 	return c.NoContent(204)
@@ -63,6 +73,9 @@ func (h Handler) UpdateUser(c echo.Context) error {
 // @Router /api/users [delete]
 func (h Handler) DeleteUser(c echo.Context) error {
 	if err := h.queries.DeleteUser(c.Request().Context(), getUserID(c)); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 	return c.NoContent(204)

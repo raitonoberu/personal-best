@@ -6,17 +6,18 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/raitonoberu/personal-best/app/handler"
 )
 
 var secret = os.Getenv("SECRET")
 
 // MustAuth sets the user ID in the context.
-// If the user is not authenticated, it returns 401.
+// If the user is not authenticated, it returns error.
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := extractUserID(c)
 		if userID == int64(0) {
-			return c.NoContent(401)
+			return handler.ErrNotAuthorized
 		}
 		c.Set("userID", userID)
 		return next(c)
