@@ -10,23 +10,15 @@ import (
 
 var secret = os.Getenv("SECRET")
 
-// Auth sets the user ID in the context.
-// If the user is not authenticated, it sets the user ID to 0.
+// MustAuth sets the user ID in the context.
+// If the user is not authenticated, it returns 401.
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := extractUserID(c)
-		c.Set("userID", userID)
-		return next(c)
-	}
-}
-
-// MustAuth sets the user ID in the context.
-// If the user is not authenticated, it returns 401.
-func MustAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		if c.Get("userID") == int64(0) {
+		if userID == int64(0) {
 			return c.NoContent(401)
 		}
+		c.Set("userID", userID)
 		return next(c)
 	}
 }
