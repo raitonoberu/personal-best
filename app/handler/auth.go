@@ -70,7 +70,7 @@ func (h Handler) Register(c echo.Context) error {
 	_, err = qtx.CreatePlayer(c.Request().Context(),
 		sqlc.CreatePlayerParams{
 			UserID:    user.ID,
-			IsMale:    req.IsMale,
+			IsMale:    *req.IsMale,
 			Phone:     req.Phone,
 			Telegram:  req.Telegram,
 			BirthDate: birthDate,

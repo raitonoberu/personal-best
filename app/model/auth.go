@@ -8,7 +8,7 @@ type RegisterRequest struct {
 	MiddleName string `json:"middle_name" validate:"required"`
 
 	BirthDate string `json:"birth_date" validate:"required,date"`
-	IsMale    bool   `json:"is_male" validate:"required"`
+	IsMale    *bool  `json:"is_male" validate:"required"`
 	Phone     string `json:"phone" validate:"required,e164"`
 	Telegram  string `json:"telegram" validate:"required,startswith=@"` // TODO: more validations
 }
