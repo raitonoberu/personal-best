@@ -21,12 +21,12 @@ import (
 // @Success 200 {object} model.AuthResponse
 // @Router /api/admin/users [post]
 func (h Handler) AdminCreateUser(c echo.Context) error {
-	var req model.AdminCreateUserRequest
-	if err := c.Bind(&req); err != nil {
+	if err := h.ensureAdmin(c); err != nil {
 		return err
 	}
 
-	if err := h.ensureAdmin(c); err != nil {
+	var req model.AdminCreateUserRequest
+	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
@@ -121,12 +121,12 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 // @Success 200
 // @Router /api/admin/users/{id} [patch]
 func (h Handler) AdminUpdateUser(c echo.Context) error {
-	var req model.AdminUpdateUserRequest
-	if err := c.Bind(&req); err != nil {
+	if err := h.ensureAdmin(c); err != nil {
 		return err
 	}
 
-	if err := h.ensureAdmin(c); err != nil {
+	var req model.AdminUpdateUserRequest
+	if err := c.Bind(&req); err != nil {
 		return err
 	}
 
@@ -175,12 +175,4 @@ func (h Handler) AdminUpdateUser(c echo.Context) error {
 	}
 
 	return c.NoContent(200)
-}
-
-func (h Handler) ensureAdmin(c echo.Context) error {
-	role := h.getUserRole(c)
-	if !role.IsAdmin {
-		return ErrAccessDenied
-	}
-	return nil
 }

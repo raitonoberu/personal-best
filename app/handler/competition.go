@@ -9,6 +9,10 @@ import (
 )
 
 func (h Handler) CreateCompetition(c echo.Context) error {
+	if err := h.ensureCanCreate(c); err != nil {
+		return err
+	}
+
 	var req model.CreateCompetitionRequest
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -32,6 +36,10 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 }
 
 func (h Handler) GetCompetition(c echo.Context) error {
+	if err := h.ensureCanView(c); err != nil {
+		return err
+	}
+
 	var req model.GetCompetitionRequest
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -45,6 +53,10 @@ func (h Handler) GetCompetition(c echo.Context) error {
 }
 
 func (h Handler) ListCompetitions(c echo.Context) error {
+	if err := h.ensureCanView(c); err != nil {
+		return err
+	}
+
 	var req model.ListCompetitionsRequest
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -59,6 +71,10 @@ func (h Handler) ListCompetitions(c echo.Context) error {
 }
 
 func (h Handler) UpdateCompetition(c echo.Context) error {
+	if err := h.ensureCanCreate(c); err != nil {
+		return err
+	}
+
 	var req model.UpdateCompetitionRequest
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -72,6 +88,7 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 
 	err := h.queries.UpdateCompetition(c.Request().Context(),
 		sqlc.UpdateCompetitionParams{
+			ID:          req.ID,
 			Name:        req.Name,
 			Description: req.Description,
 			ClosesAt:    closesAt,
@@ -83,6 +100,10 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 }
 
 func (h Handler) DeleteCompetition(c echo.Context) error {
+	if err := h.ensureCanCreate(c); err != nil {
+		return err
+	}
+
 	var req model.DeleteCompetitionRequest
 	if err := c.Bind(&req); err != nil {
 		return err
