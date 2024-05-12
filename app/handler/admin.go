@@ -57,7 +57,6 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	req.Password = password
 
 	tx, err := h.db.Begin()
 	if err != nil {
