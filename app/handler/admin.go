@@ -108,10 +108,7 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 }
 
 func (h Handler) ensureAdmin(c echo.Context) error {
-	role := h.getUserRole(c.Request().Context(), getUserID(c))
-	if role == nil {
-		return ErrUserNotFound
-	}
+	role := h.getUserRole(c)
 	if !role.IsAdmin {
 		return ErrAccessDenied
 	}

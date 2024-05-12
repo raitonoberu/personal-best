@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"context"
+	"log"
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
@@ -29,10 +29,11 @@ func (h Handler) ListRoles(c echo.Context) error {
 	return c.JSON(200, resp)
 }
 
-func (h Handler) getUserRole(ctx context.Context, id int64) *sqlc.Role {
-	role, err := h.queries.GetUserRole(ctx, id)
+func (h Handler) getUserRole(c echo.Context) sqlc.Role {
+	role, err := h.queries.GetUserRole(c.Request().Context(),
+		getUserID(c))
 	if err != nil {
-		return nil
+		log.Printf("[ERROR] Couldn't get role for user %d: %s", getUserID(c), err)
 	}
-	return &role
+	return role
 }
