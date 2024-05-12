@@ -29,6 +29,29 @@ definitions:
     - password
     - role_id
     type: object
+  model.AdminUpdateUserRequest:
+    properties:
+      birth_date:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      is_male:
+        type: boolean
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role_id:
+        type: integer
+      telegram:
+        type: string
+    type: object
   model.AuthResponse:
     properties:
       id:
@@ -174,6 +197,36 @@ paths:
       security:
       - Bearer: []
       summary: Create user
+      tags:
+      - admin
+  /api/admin/users/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Update user.
+        Player-related params only changed when updating player
+        (is_male, phone, telegram, birth_date).
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminUpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - Bearer: []
+      summary: Update user
       tags:
       - admin
   /api/login:

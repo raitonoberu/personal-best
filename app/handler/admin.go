@@ -2,6 +2,7 @@ package handler
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
@@ -105,6 +106,75 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 		return err
 	}
 	return c.JSON(200, model.NewAuthResponse(user.ID, token))
+}
+
+// @Summary Update user
+// @Security Bearer
+// @Description Update user.
+// @Description Player-related params only changed when updating player
+// @Description (is_male, phone, telegram, birth_date).
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param id path int true "id"
+// @Param request body model.AdminUpdateUserRequest true "body"
+// @Success 200
+// @Router /api/admin/users/{id} [patch]
+func (h Handler) AdminUpdateUser(c echo.Context) error {
+	var req model.AdminUpdateUserRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := h.ensureAdmin(c); err != nil {
+		return err
+	}
+
+	tx, err := h.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	qtx := h.queries.WithTx(tx)
+
+	if err := qtx.UpdateUser(c.Request().Context(),
+		sqlc.UpdateUserParams{
+			ID:         req.ID,
+			RoleID:     req.RoleID,
+			Email:      req.Email,
+			Password:   req.Password,
+			FirstName:  req.FirstName,
+			MiddleName: req.MiddleName,
+			LastName:   req.LastName,
+		},
+	); err != nil {
+		return err
+	}
+
+	var birthDate *time.Time
+	if req.BirthDate != nil {
+		date := parseDate(*req.BirthDate)
+		birthDate = &date
+	}
+
+	if err := qtx.UpdatePlayer(c.Request().Context(),
+		sqlc.UpdatePlayerParams{
+			UserID:    req.ID,
+			BirthDate: birthDate,
+			IsMale:    req.IsMale,
+			Phone:     req.Phone,
+			Telegram:  req.Telegram,
+		},
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return c.NoContent(200)
 }
 
 func (h Handler) ensureAdmin(c echo.Context) error {

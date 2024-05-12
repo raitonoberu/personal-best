@@ -5,7 +5,7 @@ import (
 )
 
 type GetUserRequest struct {
-	ID int64 `param:"id" validate:"required,gt=0"`
+	ID int64 `param:"id" validate:"required"`
 }
 
 type PlayerResponse struct {

@@ -27,7 +27,7 @@ func NewCreateCompetitionResponse(c sqlc.Competition) CreateCompetitionResponse 
 }
 
 type GetCompetitionRequest struct {
-	ID int64 `param:"id" validate:"required,gt=0"`
+	ID int64 `param:"id" validate:"required"`
 }
 
 type GetCompetitionResponse struct {
@@ -92,9 +92,9 @@ type UpdateCompetitionRequest struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	ClosesAt    *string `json:"closes_at" validate:"date"`
-	ID          int64   `param:"id" validate:"required,gt=0"`
+	ID          int64   `param:"id" validate:"required"`
 }
 
 type DeleteCompetitionRequest struct {
-	ID int64 `param:"id" validate:"required,gt=0"`
+	ID int64 `param:"id" validate:"required"`
 }

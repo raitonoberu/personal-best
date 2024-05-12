@@ -39,6 +39,7 @@ var App = &cli.App{
 		router.GET("/api/roles", h.ListRoles, middleware.Auth)
 
 		router.POST("/api/admin/users", h.AdminCreateUser, middleware.Auth)
+		router.PATCH("/api/admin/users/:id", h.AdminUpdateUser, middleware.Auth)
 
 		return router.Start(":8080")
 	},
