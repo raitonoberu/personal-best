@@ -130,6 +130,12 @@ func (h Handler) AdminUpdateUser(c echo.Context) error {
 		return err
 	}
 
+	if req.RoleID != nil {
+		if _, err := h.queries.GetRole(c.Request().Context(), *req.RoleID); err != nil {
+			return err
+		}
+	}
+
 	tx, err := h.db.Begin()
 	if err != nil {
 		return err
