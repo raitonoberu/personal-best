@@ -9,6 +9,56 @@ import (
 	"context"
 )
 
+const getRole = `-- name: GetRole :one
+SELECT
+    id, name, can_view, can_participate, can_create, is_free, is_admin
+FROM
+    roles
+WHERE
+    id = ?
+`
+
+func (q *Queries) GetRole(ctx context.Context, id int64) (Role, error) {
+	row := q.db.QueryRowContext(ctx, getRole, id)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CanView,
+		&i.CanParticipate,
+		&i.CanCreate,
+		&i.IsFree,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
+const getUserRole = `-- name: GetUserRole :one
+SELECT
+    roles.id, roles.name, roles.can_view, roles.can_participate, roles.can_create, roles.is_free, roles.is_admin
+FROM
+    users
+JOIN
+    roles ON users.role_id = roles.id
+WHERE
+    users.id = ?
+`
+
+func (q *Queries) GetUserRole(ctx context.Context, id int64) (Role, error) {
+	row := q.db.QueryRowContext(ctx, getUserRole, id)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CanView,
+		&i.CanParticipate,
+		&i.CanCreate,
+		&i.IsFree,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
 const listRoles = `-- name: ListRoles :many
 SELECT
     id, name, can_view, can_participate, can_create, is_free, is_admin

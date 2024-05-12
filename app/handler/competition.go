@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
 	"github.com/raitonoberu/personal-best/db/sqlc"
@@ -12,10 +14,17 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 		return err
 	}
 
-	req.TrainerID = getUserID(c)
-
 	comp, err := h.queries.CreateCompetition(c.Request().Context(),
-		sqlc.CreateCompetitionParams(req))
+		sqlc.CreateCompetitionParams{
+			TrainerID:   getUserID(c),
+			Name:        req.Name,
+			Description: req.Description,
+			StartDate:   parseDate(req.StartDate),
+			Tours:       req.Tours,
+			Age:         req.Age,
+			Size:        req.Size,
+			ClosesAt:    parseDate(req.ClosesAt),
+		})
 	if err != nil {
 		return err
 	}
@@ -55,8 +64,18 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 		return err
 	}
 
+	var closesAt *time.Time
+	if req.ClosesAt != nil {
+		date := parseDate(*req.ClosesAt)
+		closesAt = &date
+	}
+
 	err := h.queries.UpdateCompetition(c.Request().Context(),
-		sqlc.UpdateCompetitionParams(req))
+		sqlc.UpdateCompetitionParams{
+			Name:        req.Name,
+			Description: req.Description,
+			ClosesAt:    closesAt,
+		})
 	if err != nil {
 		return err
 	}

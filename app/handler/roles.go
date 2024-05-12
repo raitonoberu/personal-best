@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
+	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
 // @Summary List roles
@@ -24,4 +27,12 @@ func (h Handler) ListRoles(c echo.Context) error {
 	}
 
 	return c.JSON(200, resp)
+}
+
+func (h Handler) getUserRole(ctx context.Context, id int64) *sqlc.Role {
+	role, err := h.queries.GetUserRole(ctx, id)
+	if err != nil {
+		return nil
+	}
+	return &role
 }

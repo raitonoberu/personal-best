@@ -90,3 +90,13 @@ type User struct {
 	MiddleName string
 	CreatedAt  time.Time
 }
+
+type UserPlayer struct {
+	UserID      *int64
+	BirthDate   *time.Time
+	IsMale      *bool
+	Phone       *string
+	Telegram    *string
+	Preparation *string
+	Position    *string
+}

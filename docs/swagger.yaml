@@ -1,4 +1,34 @@
 definitions:
+  model.AdminCreateUserRequest:
+    properties:
+      birth_date:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      is_male:
+        type: boolean
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role_id:
+        type: integer
+      telegram:
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - middle_name
+    - password
+    - role_id
+    type: object
   model.AuthResponse:
     properties:
       id:
@@ -97,6 +127,19 @@ definitions:
       name:
         type: string
     type: object
+  model.UpdateUserRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      password:
+        type: string
+    type: object
 info:
   contact:
     email: raitonoberu@mail.ru
@@ -106,6 +149,33 @@ info:
   title: Personal Best API
   version: "0.1"
 paths:
+  /api/admin/users:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Create new user with desired params.
+        Player-related params only required when creating player
+        (is_male, phone, telegram, birth_date).
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminCreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+      security:
+      - Bearer: []
+      summary: Create user
+      tags:
+      - admin
   /api/login:
     post:
       consumes:
@@ -180,6 +250,25 @@ paths:
       security:
       - Bearer: []
       summary: Delete user
+      tags:
+      - user
+    patch:
+      description: |-
+        Update user info.
+        Player fields will be added later.
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserRequest'
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Update user
       tags:
       - user
   /api/users/{id}:

@@ -32,15 +32,7 @@ func (h Handler) Register(c echo.Context) error {
 		return err
 	}
 
-	birthDate, err := time.Parse("2006-01-02", req.BirthDate)
-	if err != nil {
-		return err
-	}
-
-	// generate password hash to store
-	passwordHash, err := bcrypt.GenerateFromPassword(
-		[]byte(req.Password), bcrypt.DefaultCost,
-	)
+	password, err := generateHash(req.Password)
 	if err != nil {
 		return err
 	}
@@ -57,7 +49,7 @@ func (h Handler) Register(c echo.Context) error {
 		sqlc.CreateUserParams{
 			RoleID:     3, // Unverified User
 			Email:      req.Email,
-			Password:   string(passwordHash),
+			Password:   password,
 			FirstName:  req.FirstName,
 			LastName:   req.LastName,
 			MiddleName: req.MiddleName,
@@ -73,7 +65,7 @@ func (h Handler) Register(c echo.Context) error {
 			IsMale:    *req.IsMale,
 			Phone:     req.Phone,
 			Telegram:  req.Telegram,
-			BirthDate: birthDate,
+			BirthDate: parseDate(req.BirthDate),
 		},
 	)
 	if err != nil {
@@ -88,7 +80,6 @@ func (h Handler) Register(c echo.Context) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
-
 	return c.JSON(201, model.NewAuthResponse(user.ID, token))
 }
 
@@ -142,4 +133,19 @@ func getUserID(c echo.Context) int64 {
 		return userID
 	}
 	return 0
+}
+
+// generate password hash to store
+func generateHash(password string) (string, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword(
+		[]byte(password), bcrypt.DefaultCost,
+	)
+	return string(passwordHash), err
+}
+
+// parse date in format YYYY-MM-DD
+func parseDate(date string) time.Time {
+	time, _ := time.Parse("2006-01-02", date)
+	// we are using validator to ensure it's in proper format
+	return time
 }

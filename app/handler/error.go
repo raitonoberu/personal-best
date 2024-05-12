@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	ErrNotEnoughFields     = echo.NewHTTPError(400, "Для создания профиля игрока не хватает полей")
 	ErrNotAuthorized       = echo.NewHTTPError(401, "Вы не авторизованы")
 	ErrWrongPassword       = echo.NewHTTPError(401, "Неверный пароль")
 	ErrAccessDenied        = echo.NewHTTPError(403, "Недостаточно прав")

@@ -29,26 +29,26 @@ type GetUserResponse struct {
 	Player *PlayerResponse `json:"player,omitempty"`
 }
 
-func NewGetUserResponse(u sqlc.User, p sqlc.Player) GetUserResponse {
+func NewGetUserResponse(row sqlc.GetUserRow) GetUserResponse {
 	var player *PlayerResponse
-	if p.UserID != 0 {
+	if row.UserPlayer.UserID != nil {
 		player = &PlayerResponse{
-			BirthDate:   p.BirthDate.Format("2006-01-02"),
-			IsMale:      p.IsMale,
-			Phone:       p.Phone,
-			Telegram:    p.Telegram,
-			Preparation: p.Preparation,
-			Position:    p.Position,
+			BirthDate:   (*row.UserPlayer.BirthDate).Format("2006-01-02"),
+			IsMale:      *row.UserPlayer.IsMale,
+			Phone:       *row.UserPlayer.Phone,
+			Telegram:    *row.UserPlayer.Telegram,
+			Preparation: row.UserPlayer.Preparation,
+			Position:    row.UserPlayer.Position,
 		}
 	}
 
 	return GetUserResponse{
-		ID:         u.ID,
-		RoleID:     u.RoleID,
-		FirstName:  u.FirstName,
-		LastName:   u.LastName,
-		MiddleName: u.MiddleName,
-		Email:      u.Email,
+		ID:         row.User.ID,
+		RoleID:     row.User.RoleID,
+		FirstName:  row.User.FirstName,
+		LastName:   row.User.LastName,
+		MiddleName: row.User.MiddleName,
+		Email:      row.User.Email,
 		Player:     player,
 	}
 }
@@ -59,5 +59,4 @@ type UpdateUserRequest struct {
 	MiddleName *string `json:"middle_name"`
 	Email      *string `json:"email"`
 	Password   *string `json:"password"`
-	ID         int64   `json:"-"`
 }

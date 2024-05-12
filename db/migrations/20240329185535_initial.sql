@@ -113,6 +113,9 @@ CREATE TABLE match_players (
     FOREIGN KEY (player_id) REFERENCES users(id)
 );
 
+CREATE VIEW user_players AS
+    SELECT players.* FROM users LEFT JOIN players ON users.id = players.user_id;
+
 -- migrate:down
 DROP TABLE users;
 DROP TABLE roles;
@@ -124,3 +127,4 @@ DROP TABLE registrations;
 DROP TABLE matches;
 DROP TABLE match_players;
 
+DROP VIEW user_players;

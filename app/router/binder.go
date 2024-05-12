@@ -1,7 +1,7 @@
 package router
 
 import (
-	"strconv"
+	"time"
 
 	"github.com/creasty/defaults"
 	"github.com/go-playground/validator/v10"
@@ -36,31 +36,6 @@ func (cb binder) Bind(i interface{}, c echo.Context) error {
 
 // yyyy-MM-dd
 func validateDate(fl validator.FieldLevel) bool {
-	f := fl.Field().String()
-
-	if len(f) != 10 {
-		return false
-	}
-	year, err := strconv.Atoi(f[:4])
-	if err != nil {
-		return false
-	}
-	if year < 1900 || year > 3000 { // TODO: this will break after 976 years
-		return false
-	}
-	month, err := strconv.Atoi(f[5:7])
-	if err != nil {
-		return false
-	}
-	if month < 1 || month > 12 {
-		return false
-	}
-	day, err := strconv.Atoi(f[8:10])
-	if err != nil {
-		return false
-	}
-	if day < 1 || day > 31 {
-		return false
-	}
-	return true
+	_, err := time.Parse("2006-01-02", fl.Field().String())
+	return err == nil
 }

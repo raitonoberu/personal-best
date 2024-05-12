@@ -7,10 +7,13 @@ import (
 )
 
 type CreateCompetitionRequest struct {
-	Name        string    `json:"name" validate:"required"`
-	Description string    `json:"description" validate:"required"`
-	StartDate   time.Time `json:"start_date" validate:"required"`
-	TrainerID   int64     `json:"-"`
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	StartDate   string `json:"start_date" validate:"required,date"`
+	Tours       int64  `json:"tours" validate:"required"`
+	Age         int64  `json:"age" validate:"required"`
+	Size        int64  `json:"size" validate:"required"`
+	ClosesAt    string `json:"closes_at" validate:"required,date"`
 }
 
 type CreateCompetitionResponse struct {
@@ -41,7 +44,14 @@ func NewGetCompetitionResponse(row sqlc.GetCompetitionRow) GetCompetitionRespons
 		Name:        row.Competition.Name,
 		Description: row.Competition.Description,
 		StartDate:   row.Competition.StartDate,
-		Trainer:     NewGetUserResponse(row.User, sqlc.Player{}),
+		Trainer: GetUserResponse{
+			ID:         row.User.ID,
+			RoleID:     row.User.RoleID,
+			FirstName:  row.User.FirstName,
+			LastName:   row.User.LastName,
+			MiddleName: row.User.MiddleName,
+			Email:      row.User.Email,
+		},
 	}
 }
 
@@ -79,10 +89,10 @@ func NewListCompetitionsResponse(rows []sqlc.ListCompetitionsRow) ListCompetitio
 }
 
 type UpdateCompetitionRequest struct {
-	Name        *string    `json:"name"`
-	Description *string    `json:"description"`
-	StartDate   *time.Time `json:"start_date"`
-	ID          int64      `param:"id" validate:"required,gt=0"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	ClosesAt    *string `json:"closes_at" validate:"date"`
+	ID          int64   `param:"id" validate:"required,gt=0"`
 }
 
 type DeleteCompetitionRequest struct {

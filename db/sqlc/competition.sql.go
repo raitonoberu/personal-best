@@ -12,24 +12,32 @@ import (
 
 const createCompetition = `-- name: CreateCompetition :one
 INSERT INTO
-    competitions (name, description, start_date, trainer_id)
+    competitions (trainer_id, name, description, start_date, tours, age, size, closes_at)
 VALUES
-    (?, ?, ?, ?) RETURNING id, trainer_id, name, description, start_date, tours, age, size, closes_at, created_at
+    (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, trainer_id, name, description, start_date, tours, age, size, closes_at, created_at
 `
 
 type CreateCompetitionParams struct {
+	TrainerID   int64
 	Name        string
 	Description string
 	StartDate   time.Time
-	TrainerID   int64
+	Tours       int64
+	Age         int64
+	Size        int64
+	ClosesAt    time.Time
 }
 
 func (q *Queries) CreateCompetition(ctx context.Context, arg CreateCompetitionParams) (Competition, error) {
 	row := q.db.QueryRowContext(ctx, createCompetition,
+		arg.TrainerID,
 		arg.Name,
 		arg.Description,
 		arg.StartDate,
-		arg.TrainerID,
+		arg.Tours,
+		arg.Age,
+		arg.Size,
+		arg.ClosesAt,
 	)
 	var i Competition
 	err := row.Scan(
@@ -62,10 +70,12 @@ func (q *Queries) DeleteCompetition(ctx context.Context, id int64) error {
 const getCompetition = `-- name: GetCompetition :one
 SELECT
     users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
-    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.start_date, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at
+    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.start_date, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
+    competition_days.competition_id, competition_days.date, competition_days.start_time, competition_days.end_time
 FROM
     competitions
     JOIN users ON users.id = competitions.trainer_id
+    JOIN competition_days ON competition_id = competitions.id
 WHERE
     competitions.id = ?
 LIMIT
@@ -73,8 +83,9 @@ LIMIT
 `
 
 type GetCompetitionRow struct {
-	User        User
-	Competition Competition
+	User           User
+	Competition    Competition
+	CompetitionDay CompetitionDay
 }
 
 func (q *Queries) GetCompetition(ctx context.Context, id int64) (GetCompetitionRow, error) {
@@ -99,6 +110,10 @@ func (q *Queries) GetCompetition(ctx context.Context, id int64) (GetCompetitionR
 		&i.Competition.Size,
 		&i.Competition.ClosesAt,
 		&i.Competition.CreatedAt,
+		&i.CompetitionDay.CompetitionID,
+		&i.CompetitionDay.Date,
+		&i.CompetitionDay.StartTime,
+		&i.CompetitionDay.EndTime,
 	)
 	return i, err
 }
@@ -226,7 +241,8 @@ UPDATE
 SET
     name = coalesce(?1, name),
     description = coalesce(?2, description),
-    start_date = coalesce(?3, start_date)
+    closes_at = coalesce(?3, closes_at)
+    -- more?
 WHERE
     id = ?4
 `
@@ -234,7 +250,7 @@ WHERE
 type UpdateCompetitionParams struct {
 	Name        *string
 	Description *string
-	StartDate   *time.Time
+	ClosesAt    *time.Time
 	ID          int64
 }
 
@@ -242,7 +258,7 @@ func (q *Queries) UpdateCompetition(ctx context.Context, arg UpdateCompetitionPa
 	_, err := q.db.ExecContext(ctx, updateCompetition,
 		arg.Name,
 		arg.Description,
-		arg.StartDate,
+		arg.ClosesAt,
 		arg.ID,
 	)
 	return err

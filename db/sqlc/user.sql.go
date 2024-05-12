@@ -101,11 +101,11 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 
 const getUser = `-- name: GetUser :one
 SELECT
-    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.preparation, players.position
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, user_players.user_id, user_players.birth_date, user_players.is_male, user_players.phone, user_players.telegram, user_players.preparation, user_players.position
 FROM
     users
 LEFT JOIN
-    players ON users.id = players.user_id
+    user_players ON users.id = user_players.user_id
 WHERE
     users.id = ?
 LIMIT
@@ -113,8 +113,8 @@ LIMIT
 `
 
 type GetUserRow struct {
-	User   User
-	Player Player
+	User       User
+	UserPlayer UserPlayer
 }
 
 func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
@@ -129,13 +129,13 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 		&i.User.LastName,
 		&i.User.MiddleName,
 		&i.User.CreatedAt,
-		&i.Player.UserID,
-		&i.Player.BirthDate,
-		&i.Player.IsMale,
-		&i.Player.Phone,
-		&i.Player.Telegram,
-		&i.Player.Preparation,
-		&i.Player.Position,
+		&i.UserPlayer.UserID,
+		&i.UserPlayer.BirthDate,
+		&i.UserPlayer.IsMale,
+		&i.UserPlayer.Phone,
+		&i.UserPlayer.Telegram,
+		&i.UserPlayer.Preparation,
+		&i.UserPlayer.Position,
 	)
 	return i, err
 }
@@ -167,35 +167,69 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
+const updatePlayer = `-- name: UpdatePlayer :exec
+UPDATE
+    players
+SET
+    birth_date = coalesce(?1, birth_date),
+    is_male = coalesce(?2, is_male),
+    phone = coalesce(?3, phone),
+    telegram = coalesce(?4, telegram)
+WHERE
+    user_id = ?5
+`
+
+type UpdatePlayerParams struct {
+	BirthDate *time.Time
+	IsMale    *bool
+	Phone     *string
+	Telegram  *string
+	UserID    int64
+}
+
+func (q *Queries) UpdatePlayer(ctx context.Context, arg UpdatePlayerParams) error {
+	_, err := q.db.ExecContext(ctx, updatePlayer,
+		arg.BirthDate,
+		arg.IsMale,
+		arg.Phone,
+		arg.Telegram,
+		arg.UserID,
+	)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :exec
 UPDATE
     users
 SET
-    first_name = coalesce(?1, first_name),
-    last_name = coalesce(?2, last_name),
-    middle_name = coalesce(?3, middle_name),
-    email = coalesce(?4, email),
-    password = coalesce(?5, password)
+    role_id = coalesce(?1, role_id),
+    email = coalesce(?2, email),
+    password = coalesce(?3, password),
+    first_name = coalesce(?4, first_name),
+    last_name = coalesce(?5, last_name),
+    middle_name = coalesce(?6, middle_name)
 WHERE
-    id = ?6
+    id = ?7
 `
 
 type UpdateUserParams struct {
+	RoleID     *int64
+	Email      *string
+	Password   *string
 	FirstName  *string
 	LastName   *string
 	MiddleName *string
-	Email      *string
-	Password   *string
 	ID         int64
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser,
+		arg.RoleID,
+		arg.Email,
+		arg.Password,
 		arg.FirstName,
 		arg.LastName,
 		arg.MiddleName,
-		arg.Email,
-		arg.Password,
 		arg.ID,
 	)
 	return err

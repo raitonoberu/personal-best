@@ -1,16 +1,18 @@
 -- name: CreateCompetition :one
 INSERT INTO
-    competitions (name, description, start_date, trainer_id)
+    competitions (trainer_id, name, description, start_date, tours, age, size, closes_at)
 VALUES
-    (?, ?, ?, ?) RETURNING *;
+    (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *;
 
 -- name: GetCompetition :one
 SELECT
     sqlc.embed(users),
-    sqlc.embed(competitions)
+    sqlc.embed(competitions),
+    sqlc.embed(competition_days)
 FROM
     competitions
     JOIN users ON users.id = competitions.trainer_id
+    JOIN competition_days ON competition_id = competitions.id
 WHERE
     competitions.id = ?
 LIMIT
@@ -43,7 +45,8 @@ UPDATE
 SET
     name = coalesce(sqlc.narg('name'), name),
     description = coalesce(sqlc.narg('description'), description),
-    start_date = coalesce(sqlc.narg('start_date'), start_date)
+    closes_at = coalesce(sqlc.narg('closes_at'), closes_at)
+    -- more?
 WHERE
     id = sqlc.arg('id');
 
