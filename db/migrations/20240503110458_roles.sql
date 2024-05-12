@@ -2,7 +2,7 @@
 INSERT INTO
     roles (id, name, can_view, can_participate, can_create, is_free, is_admin)
 VALUES
-    (1, "Администратор", true, true, true, true, true);
+    (1, "Администратор", true, false, true, false, true);
 
 INSERT INTO
     roles (id, name, can_view, can_participate, can_create, is_free, is_admin)
