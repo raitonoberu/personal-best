@@ -12,16 +12,15 @@ import (
 
 const createCompetition = `-- name: CreateCompetition :one
 INSERT INTO
-    competitions (trainer_id, name, description, start_date, tours, age, size, closes_at)
+    competitions (trainer_id, name, description, tours, age, size, closes_at)
 VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, trainer_id, name, description, start_date, tours, age, size, closes_at, created_at
+    (?, ?, ?, ?, ?, ?, ?) RETURNING id, trainer_id, name, description, tours, age, size, closes_at, created_at
 `
 
 type CreateCompetitionParams struct {
 	TrainerID   int64
 	Name        string
 	Description string
-	StartDate   time.Time
 	Tours       int64
 	Age         int64
 	Size        int64
@@ -33,7 +32,6 @@ func (q *Queries) CreateCompetition(ctx context.Context, arg CreateCompetitionPa
 		arg.TrainerID,
 		arg.Name,
 		arg.Description,
-		arg.StartDate,
 		arg.Tours,
 		arg.Age,
 		arg.Size,
@@ -45,12 +43,42 @@ func (q *Queries) CreateCompetition(ctx context.Context, arg CreateCompetitionPa
 		&i.TrainerID,
 		&i.Name,
 		&i.Description,
-		&i.StartDate,
 		&i.Tours,
 		&i.Age,
 		&i.Size,
 		&i.ClosesAt,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const createCompetitionDay = `-- name: CreateCompetitionDay :one
+INSERT INTO
+    competition_days (competition_id, date, start_time, end_time)
+VALUES
+    (?, ?, ?, ?) RETURNING competition_id, date, start_time, end_time
+`
+
+type CreateCompetitionDayParams struct {
+	CompetitionID int64
+	Date          time.Time
+	StartTime     time.Time
+	EndTime       time.Time
+}
+
+func (q *Queries) CreateCompetitionDay(ctx context.Context, arg CreateCompetitionDayParams) (CompetitionDay, error) {
+	row := q.db.QueryRowContext(ctx, createCompetitionDay,
+		arg.CompetitionID,
+		arg.Date,
+		arg.StartTime,
+		arg.EndTime,
+	)
+	var i CompetitionDay
+	err := row.Scan(
+		&i.CompetitionID,
+		&i.Date,
+		&i.StartTime,
+		&i.EndTime,
 	)
 	return i, err
 }
@@ -69,13 +97,11 @@ func (q *Queries) DeleteCompetition(ctx context.Context, id int64) error {
 
 const getCompetition = `-- name: GetCompetition :one
 SELECT
-    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
-    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.start_date, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
-    competition_days.competition_id, competition_days.date, competition_days.start_time, competition_days.end_time
+    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at
 FROM
     competitions
     JOIN users ON users.id = competitions.trainer_id
-    JOIN competition_days ON competition_id = competitions.id
 WHERE
     competitions.id = ?
 LIMIT
@@ -83,15 +109,23 @@ LIMIT
 `
 
 type GetCompetitionRow struct {
-	User           User
-	Competition    Competition
-	CompetitionDay CompetitionDay
+	Competition Competition
+	User        User
 }
 
 func (q *Queries) GetCompetition(ctx context.Context, id int64) (GetCompetitionRow, error) {
 	row := q.db.QueryRowContext(ctx, getCompetition, id)
 	var i GetCompetitionRow
 	err := row.Scan(
+		&i.Competition.ID,
+		&i.Competition.TrainerID,
+		&i.Competition.Name,
+		&i.Competition.Description,
+		&i.Competition.Tours,
+		&i.Competition.Age,
+		&i.Competition.Size,
+		&i.Competition.ClosesAt,
+		&i.Competition.CreatedAt,
 		&i.User.ID,
 		&i.User.RoleID,
 		&i.User.Email,
@@ -100,28 +134,52 @@ func (q *Queries) GetCompetition(ctx context.Context, id int64) (GetCompetitionR
 		&i.User.LastName,
 		&i.User.MiddleName,
 		&i.User.CreatedAt,
-		&i.Competition.ID,
-		&i.Competition.TrainerID,
-		&i.Competition.Name,
-		&i.Competition.Description,
-		&i.Competition.StartDate,
-		&i.Competition.Tours,
-		&i.Competition.Age,
-		&i.Competition.Size,
-		&i.Competition.ClosesAt,
-		&i.Competition.CreatedAt,
-		&i.CompetitionDay.CompetitionID,
-		&i.CompetitionDay.Date,
-		&i.CompetitionDay.StartTime,
-		&i.CompetitionDay.EndTime,
 	)
 	return i, err
+}
+
+const getCompetitionDays = `-- name: GetCompetitionDays :many
+SELECT
+    competition_id, date, start_time, end_time
+FROM
+    competition_days
+WHERE
+    competition_id = ?
+ORDER BY date
+`
+
+func (q *Queries) GetCompetitionDays(ctx context.Context, competitionID int64) ([]CompetitionDay, error) {
+	rows, err := q.db.QueryContext(ctx, getCompetitionDays, competitionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CompetitionDay
+	for rows.Next() {
+		var i CompetitionDay
+		if err := rows.Scan(
+			&i.CompetitionID,
+			&i.Date,
+			&i.StartTime,
+			&i.EndTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listCompetitions = `-- name: ListCompetitions :many
 SELECT
     users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
-    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.start_date, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
+    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
     COUNT() OVER() as total
 FROM
     competitions
@@ -163,7 +221,6 @@ func (q *Queries) ListCompetitions(ctx context.Context, arg ListCompetitionsPara
 			&i.Competition.TrainerID,
 			&i.Competition.Name,
 			&i.Competition.Description,
-			&i.Competition.StartDate,
 			&i.Competition.Tours,
 			&i.Competition.Age,
 			&i.Competition.Size,
@@ -186,7 +243,7 @@ func (q *Queries) ListCompetitions(ctx context.Context, arg ListCompetitionsPara
 
 const listCompetitionsByTrainer = `-- name: ListCompetitionsByTrainer :many
 SELECT
-    id, trainer_id, name, description, start_date, tours, age, size, closes_at, created_at
+    id, trainer_id, name, description, tours, age, size, closes_at, created_at
 FROM
     competitions
 WHERE
@@ -215,7 +272,6 @@ func (q *Queries) ListCompetitionsByTrainer(ctx context.Context, arg ListCompeti
 			&i.TrainerID,
 			&i.Name,
 			&i.Description,
-			&i.StartDate,
 			&i.Tours,
 			&i.Age,
 			&i.Size,

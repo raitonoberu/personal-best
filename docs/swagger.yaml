@@ -59,6 +59,74 @@ definitions:
       token:
         type: string
     type: object
+  model.CompetitionDay:
+    properties:
+      date:
+        type: string
+      end_time:
+        type: string
+      start_time:
+        type: string
+    required:
+    - date
+    - end_time
+    - start_time
+    type: object
+  model.CreateCompetitionRequest:
+    properties:
+      age:
+        type: integer
+      closes_at:
+        type: string
+      days:
+        items:
+          $ref: '#/definitions/model.CompetitionDay'
+        type: array
+      description:
+        type: string
+      name:
+        type: string
+      size:
+        type: integer
+      tours:
+        type: integer
+    required:
+    - age
+    - closes_at
+    - days
+    - description
+    - name
+    - size
+    - tours
+    type: object
+  model.CreateCompetitionResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  model.GetCompetitionResponse:
+    properties:
+      age:
+        type: integer
+      closes_at:
+        type: string
+      days:
+        items:
+          $ref: '#/definitions/model.CompetitionDay'
+        type: array
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      size:
+        type: integer
+      tours:
+        type: integer
+      trainer:
+        $ref: '#/definitions/model.GetUserResponse'
+    type: object
   model.GetUserResponse:
     properties:
       email:
@@ -74,6 +142,17 @@ definitions:
       player:
         $ref: '#/definitions/model.PlayerResponse'
       role_id:
+        type: integer
+    type: object
+  model.ListCompetitionsResponse:
+    properties:
+      competitions:
+        items:
+          $ref: '#/definitions/model.GetCompetitionResponse'
+        type: array
+      count:
+        type: integer
+      total:
         type: integer
     type: object
   model.LoginRequest:
@@ -229,6 +308,80 @@ paths:
       summary: Update user
       tags:
       - admin
+  /api/competitions:
+    get:
+      description: |-
+        List all competitions from new to old
+        For now there is no way to get start/end but im working on it :)
+      parameters:
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListCompetitionsResponse'
+      security:
+      - Bearer: []
+      summary: List competition
+      tags:
+      - competition
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Create new competition.
+        Days must be different (no same day twice).
+        Time must be in format HH:MM.
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateCompetitionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreateCompetitionResponse'
+      security:
+      - Bearer: []
+      summary: Create competition
+      tags:
+      - competition
+  /api/competitions/{id}:
+    get:
+      description: Return competition by ID
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetCompetitionResponse'
+      security:
+      - Bearer: []
+      summary: Get competition
+      tags:
+      - competition
   /api/login:
     post:
       consumes:

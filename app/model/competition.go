@@ -1,19 +1,24 @@
 package model
 
 import (
-	"time"
-
 	"github.com/raitonoberu/personal-best/db/sqlc"
 )
+
+type CompetitionDay struct {
+	Date      string `json:"date" validate:"required,date"`
+	StartTime string `json:"start_time" validate:"required,time"`
+	EndTime   string `json:"end_time" validate:"required,time"`
+}
 
 type CreateCompetitionRequest struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
-	StartDate   string `json:"start_date" validate:"required,date"`
 	Tours       int64  `json:"tours" validate:"required"`
 	Age         int64  `json:"age" validate:"required"`
 	Size        int64  `json:"size" validate:"required"`
 	ClosesAt    string `json:"closes_at" validate:"required,date"`
+
+	Days []CompetitionDay `json:"days" validate:"required,notblank,dive"`
 }
 
 type CreateCompetitionResponse struct {
@@ -31,19 +36,35 @@ type GetCompetitionRequest struct {
 }
 
 type GetCompetitionResponse struct {
-	ID          int64           `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	StartDate   time.Time       `json:"start_date"`
-	Trainer     GetUserResponse `json:"trainer"`
+	ID          int64            `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Tours       int64            `json:"tours"`
+	Age         int64            `json:"age"`
+	Size        int64            `json:"size"`
+	ClosesAt    string           `json:"closes_at"`
+	Trainer     GetUserResponse  `json:"trainer"`
+	Days        []CompetitionDay `json:"days,omitempty"`
 }
 
-func NewGetCompetitionResponse(row sqlc.GetCompetitionRow) GetCompetitionResponse {
+func NewGetCompetitionResponse(row sqlc.GetCompetitionRow, days []sqlc.CompetitionDay) GetCompetitionResponse {
+	dayModels := make([]CompetitionDay, len(days))
+	for i, d := range days {
+		dayModels[i] = CompetitionDay{
+			Date:      d.Date.Format("2006-01-02"),
+			StartTime: d.StartTime.Format("15:04"),
+			EndTime:   d.EndTime.Format("15:04"),
+		}
+	}
+
 	return GetCompetitionResponse{
 		ID:          row.Competition.ID,
 		Name:        row.Competition.Name,
 		Description: row.Competition.Description,
-		StartDate:   row.Competition.StartDate,
+		Tours:       row.Competition.Tours,
+		Age:         row.Competition.Age,
+		Size:        row.Competition.Size,
+		ClosesAt:    row.Competition.ClosesAt.Format("2006-01-02"),
 		Trainer: GetUserResponse{
 			ID:         row.User.ID,
 			RoleID:     row.User.RoleID,
@@ -52,6 +73,7 @@ func NewGetCompetitionResponse(row sqlc.GetCompetitionRow) GetCompetitionRespons
 			MiddleName: row.User.MiddleName,
 			Email:      row.User.Email,
 		},
+		Days: dayModels,
 	}
 }
 
@@ -73,7 +95,7 @@ func NewListCompetitionsResponse(rows []sqlc.ListCompetitionsRow) ListCompetitio
 			sqlc.GetCompetitionRow{
 				Competition: row.Competition,
 				User:        row.User,
-			})
+			}, nil) // TODO:
 	}
 
 	var total int

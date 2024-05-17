@@ -93,6 +93,117 @@
                 }
             }
         },
+        "/api/competitions": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List all competitions from new to old\nFor now there is no way to get start/end but im working on it :)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "competition"
+                ],
+                "summary": "List competition",
+                "parameters": [
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ListCompetitionsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create new competition.\nDays must be different (no same day twice).\nTime must be in format HH:MM.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "competition"
+                ],
+                "summary": "Create competition",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateCompetitionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateCompetitionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competitions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Return competition by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "competition"
+                ],
+                "summary": "Get competition",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GetCompetitionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Login user, return JWT token \u0026 ID",
@@ -360,6 +471,106 @@
                 }
             }
         },
+        "model.CompetitionDay": {
+            "type": "object",
+            "required": [
+                "date",
+                "end_time",
+                "start_time"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CreateCompetitionRequest": {
+            "type": "object",
+            "required": [
+                "age",
+                "closes_at",
+                "days",
+                "description",
+                "name",
+                "size",
+                "tours"
+            ],
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "closes_at": {
+                    "type": "string"
+                },
+                "days": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CompetitionDay"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "tours": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CreateCompetitionResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.GetCompetitionResponse": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "closes_at": {
+                    "type": "string"
+                },
+                "days": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CompetitionDay"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "tours": {
+                    "type": "integer"
+                },
+                "trainer": {
+                    "$ref": "#/definitions/model.GetUserResponse"
+                }
+            }
+        },
         "model.GetUserResponse": {
             "type": "object",
             "properties": {
@@ -382,6 +593,23 @@
                     "$ref": "#/definitions/model.PlayerResponse"
                 },
                 "role_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ListCompetitionsResponse": {
+            "type": "object",
+            "properties": {
+                "competitions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GetCompetitionResponse"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "total": {
                     "type": "integer"
                 }
             }

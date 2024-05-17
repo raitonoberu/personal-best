@@ -13,7 +13,6 @@ type Competition struct {
 	TrainerID   int64
 	Name        string
 	Description string
-	StartDate   time.Time
 	Tours       int64
 	Age         int64
 	Size        int64

@@ -149,3 +149,10 @@ func parseDate(date string) time.Time {
 	// we are using validator to ensure it's in proper format
 	return time
 }
+
+// parse time in format HH:MM
+func parseTime(timeStr string, date time.Time) time.Time {
+	time, _ := time.Parse("15:04", timeStr)
+	// we are using validator to ensure it's in proper format
+	return time.AddDate(date.Year(), int(date.Month()), date.Day())
+}

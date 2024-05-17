@@ -57,7 +57,6 @@ CREATE TABLE competitions (
 
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    start_date DATETIME NOT NULL,
     tours INTEGER NOT NULL,
     age INTEGER NOT NULL,
     size INTEGER NOT NULL,
