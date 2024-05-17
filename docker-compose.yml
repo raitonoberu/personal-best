@@ -3,6 +3,8 @@ services:
     container_name: app
     build: .
     restart: unless-stopped
+    environment:
+        SECRET: ${SECRET}
     ports:
       - "$PORT:8080"
     volumes:
