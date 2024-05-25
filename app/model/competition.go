@@ -120,3 +120,37 @@ type UpdateCompetitionRequest struct {
 type DeleteCompetitionRequest struct {
 	ID int64 `param:"id" validate:"required"`
 }
+
+type Registration struct {
+	IsApproved bool            `json:"is_approved"`
+	IsDropped  bool            `json:"is_dropped"`
+	User       GetUserResponse `json:"user"`
+}
+
+type ListCompetitionRegistrationsRequest struct {
+	ID int64 `param:"id" validate:"required"`
+}
+
+type ListCompetitionRegistrationsResponse []Registration
+
+func NewListCompetitionRegistrationsResponse(rows []sqlc.ListCompetitionRegistrationsRow) ListCompetitionRegistrationsResponse {
+	regs := make([]Registration, len(rows))
+	for i := 0; i < len(rows); i++ {
+		regs[i] = Registration{
+			IsApproved: rows[i].Registration.IsApproved,
+			IsDropped:  rows[i].Registration.IsDropped,
+			User: NewGetUserResponse(sqlc.GetUserRow{
+				User: rows[i].User,
+			}),
+		}
+	}
+	return regs
+}
+
+type RegisterForCompetitionRequest struct {
+	ID int64 `param:"id" validate:"required"`
+}
+
+type UnregisterForCompetitionRequest struct {
+	ID int64 `param:"id" validate:"required"`
+}

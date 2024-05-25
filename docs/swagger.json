@@ -204,6 +204,92 @@
                 }
             }
         },
+        "/api/competitions/{id}/registrations": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List registrations for competition",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registration"
+                ],
+                "summary": "List competition registrations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Registration"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Competition must not be closed yet",
+                "tags": [
+                    "registration"
+                ],
+                "summary": "Register for competition",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Competition must not be closed yet",
+                "tags": [
+                    "registration"
+                ],
+                "summary": "Unregister for competition",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Login user, return JWT token \u0026 ID",
@@ -693,6 +779,20 @@
                 "telegram": {
                     "description": "TODO: more validations",
                     "type": "string"
+                }
+            }
+        },
+        "model.Registration": {
+            "type": "object",
+            "properties": {
+                "is_approved": {
+                    "type": "boolean"
+                },
+                "is_dropped": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.GetUserResponse"
                 }
             }
         },

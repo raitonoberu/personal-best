@@ -212,6 +212,15 @@ definitions:
     - phone
     - telegram
     type: object
+  model.Registration:
+    properties:
+      is_approved:
+        type: boolean
+      is_dropped:
+        type: boolean
+      user:
+        $ref: '#/definitions/model.GetUserResponse'
+    type: object
   model.RoleResponse:
     properties:
       can_create:
@@ -382,6 +391,58 @@ paths:
       summary: Get competition
       tags:
       - competition
+  /api/competitions/{id}/registrations:
+    delete:
+      description: Competition must not be closed yet
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      security:
+      - Bearer: []
+      summary: Unregister for competition
+      tags:
+      - registration
+    get:
+      description: List registrations for competition
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Registration'
+            type: array
+      security:
+      - Bearer: []
+      summary: List competition registrations
+      tags:
+      - registration
+    post:
+      description: Competition must not be closed yet
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+      security:
+      - Bearer: []
+      summary: Register for competition
+      tags:
+      - registration
   /api/login:
     post:
       consumes:

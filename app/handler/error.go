@@ -11,6 +11,7 @@ var (
 	ErrNotEnoughFields     = echo.NewHTTPError(400, "Для создания профиля игрока не хватает полей")
 	ErrStartBeforeClose    = echo.NewHTTPError(400, "Соревнование не может начинаться до конца регистрации")
 	ErrEndBeforeStart      = echo.NewHTTPError(400, "Время начала должно быть раньше времени конца")
+	ErrCompetitionClosed   = echo.NewHTTPError(400, "Запись на сорвенование закрыта")
 	ErrNotAuthorized       = echo.NewHTTPError(401, "Вы не авторизованы")
 	ErrWrongPassword       = echo.NewHTTPError(401, "Неверный пароль")
 	ErrAccessDenied        = echo.NewHTTPError(403, "Недостаточно прав")

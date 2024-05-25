@@ -30,11 +30,16 @@ func (h Handler) ListRoles(c echo.Context) error {
 }
 
 func (h Handler) getUserRole(c echo.Context) sqlc.Role {
+	if r := c.Get("role"); r != nil {
+		return r.(sqlc.Role)
+	}
+
 	role, err := h.queries.GetUserRole(c.Request().Context(),
 		getUserID(c))
 	if err != nil {
 		log.Printf("[ERROR] Couldn't get role for user %d: %s", getUserID(c), err)
 	}
+	c.Set("role", role)
 	return role
 }
 
