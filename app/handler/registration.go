@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
+	"github.com/raitonoberu/personal-best/app/service"
 	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
@@ -79,6 +80,12 @@ func (h Handler) RegisterForCompetition(c echo.Context) error {
 		return err
 	}
 
+	if err := h.service.UpdateMatches(c.Request().Context(), req.ID); err != nil &&
+		err != service.ErrNotEnoughPlayers {
+		// ignoring if not enough players
+		return err
+	}
+
 	return c.NoContent(201)
 }
 
@@ -120,5 +127,37 @@ func (h Handler) UnregisterForCompetition(c echo.Context) error {
 		return err
 	}
 
+	if err := h.service.UpdateMatches(c.Request().Context(), req.ID); err != nil &&
+		err != service.ErrNotEnoughPlayers {
+		// ignoring if not enough players
+		// TODO: Here we actually should not xD
+		return err
+	}
+
 	return c.NoContent(200)
+}
+
+// @Summary Update registration
+// @Security Bearer
+// @Description This is made for trainers/admins
+// @Description Here you can approve or drop players
+// @Tags registration
+// @Param id path int true "id"
+// @Param comp_id path int true "comp_id"
+// @Param request body model.UpdateRegistrationRequest true "body"
+// @Success 201
+// @Router /api/competitions/{comp_id}/registrations/{id} [patch]
+func (h Handler) UpdateRegistration(c echo.Context) error {
+	if err := h.ensureCanCreate(c); err != nil {
+		return err
+	}
+
+	var req model.UpdateRegistrationRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	err := h.service.UpdateRegistration(c.Request().Context(), req)
+
+	return c.NoContent(201)
 }

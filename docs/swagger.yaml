@@ -155,6 +155,17 @@ definitions:
       total:
         type: integer
     type: object
+  model.ListMatchesResponse:
+    properties:
+      count:
+        type: integer
+      matches:
+        items:
+          $ref: '#/definitions/model.Match'
+        type: array
+      total:
+        type: integer
+    type: object
   model.LoginRequest:
     properties:
       email:
@@ -164,6 +175,25 @@ definitions:
     required:
     - email
     - password
+    type: object
+  model.Match:
+    properties:
+      id:
+        type: integer
+      left_score:
+        type: integer
+      left_team:
+        items:
+          $ref: '#/definitions/model.GetUserResponse'
+        type: array
+      right_score:
+        type: integer
+      right_team:
+        items:
+          $ref: '#/definitions/model.GetUserResponse'
+        type: array
+      start_time:
+        type: string
     type: object
   model.PlayerResponse:
     properties:
@@ -237,6 +267,13 @@ definitions:
         type: boolean
       name:
         type: string
+    type: object
+  model.UpdateMatchRequest:
+    properties:
+      left_score:
+        type: integer
+      right_score:
+        type: integer
     type: object
   model.UpdateUserRequest:
     properties:
@@ -371,6 +408,37 @@ paths:
       summary: Create competition
       tags:
       - competition
+  /api/competitions/{comp_id}/matches/{id}:
+    patch:
+      description: |-
+        Update match score
+        Match must have players & score must NOT be set already
+        This will fill next match's players
+      parameters:
+      - description: comp_id
+        in: path
+        name: comp_id
+        required: true
+        type: integer
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMatchRequest'
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Update match
+      tags:
+      - match
   /api/competitions/{id}:
     get:
       description: Return competition by ID
@@ -391,6 +459,37 @@ paths:
       summary: Get competition
       tags:
       - competition
+  /api/competitions/{id}/matches:
+    get:
+      description: List all matches with all players
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListMatchesResponse'
+      security:
+      - Bearer: []
+      summary: List competition matches
+      tags:
+      - match
   /api/competitions/{id}/registrations:
     delete:
       description: Competition must not be closed yet
@@ -429,7 +528,9 @@ paths:
       tags:
       - registration
     post:
-      description: Competition must not be closed yet
+      description: |-
+        This is made for trainers/admins
+        Here you can approve or ban players
       parameters:
       - in: path
         name: id
@@ -440,7 +541,7 @@ paths:
           description: Created
       security:
       - Bearer: []
-      summary: Register for competition
+      summary: Update registration
       tags:
       - registration
   /api/login:

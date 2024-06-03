@@ -3,12 +3,14 @@ package handler
 import (
 	"database/sql"
 
+	"github.com/raitonoberu/personal-best/app/service"
 	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
 type Handler struct {
 	db      *sql.DB
 	queries *sqlc.Queries
+	service service.Service
 }
 
 func New(db *sql.DB) Handler {
@@ -17,5 +19,6 @@ func New(db *sql.DB) Handler {
 	return Handler{
 		db:      db,
 		queries: queries,
+		service: service.New(db),
 	}
 }

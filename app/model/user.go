@@ -53,6 +53,30 @@ func NewGetUserResponse(row sqlc.GetUserRow) GetUserResponse {
 	}
 }
 
+func NewGetPlayerResponse(u sqlc.User, p sqlc.Player) GetUserResponse {
+	var player *PlayerResponse
+	if p.UserID != 0 {
+		player = &PlayerResponse{
+			BirthDate:   (p.BirthDate).Format("2006-01-02"),
+			IsMale:      p.IsMale,
+			Phone:       p.Phone,
+			Telegram:    p.Telegram,
+			Preparation: p.Preparation,
+			Position:    p.Position,
+		}
+	}
+
+	return GetUserResponse{
+		ID:         u.ID,
+		RoleID:     u.RoleID,
+		FirstName:  u.FirstName,
+		LastName:   u.LastName,
+		MiddleName: u.MiddleName,
+		Email:      u.Email,
+		Player:     player,
+	}
+}
+
 type UpdateUserRequest struct {
 	FirstName  *string `json:"first_name"`
 	LastName   *string `json:"last_name"`

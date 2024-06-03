@@ -88,6 +88,11 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 		return err
 	}
 
+	// TODO: make it in the SAME TRANSACTION
+	if err := h.service.GenerateMatches(c.Request().Context(), comp.ID); err != nil {
+		return err
+	}
+
 	return c.JSON(201, model.NewCreateCompetitionResponse(comp))
 }
 

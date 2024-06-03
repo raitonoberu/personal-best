@@ -179,6 +179,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/competitions/{comp_id}/matches/{id}": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update match score\nMatch must have players \u0026 score must NOT be set already\nThis will fill next match's players",
+                "tags": [
+                    "match"
+                ],
+                "summary": "Update match",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "comp_id",
+                        "name": "comp_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateMatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/api/competitions/{id}": {
             "get": {
                 "security": [
@@ -207,6 +251,54 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.GetCompetitionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/competitions/{id}/matches": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List all matches with all players",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "match"
+                ],
+                "summary": "List competition matches",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ListMatchesResponse"
                         }
                     }
                 }
@@ -253,11 +345,11 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Competition must not be closed yet",
+                "description": "This is made for trainers/admins\nHere you can approve or ban players",
                 "tags": [
                     "registration"
                 ],
-                "summary": "Register for competition",
+                "summary": "Update registration",
                 "parameters": [
                     {
                         "type": "integer",
@@ -708,6 +800,23 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ListMatchesResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Match"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.LoginRequest": {
             "type": "object",
             "required": [
@@ -719,6 +828,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Match": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "left_score": {
+                    "type": "integer"
+                },
+                "left_team": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GetUserResponse"
+                    }
+                },
+                "right_score": {
+                    "type": "integer"
+                },
+                "right_team": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GetUserResponse"
+                    }
+                },
+                "start_time": {
                     "type": "string"
                 }
             }
@@ -827,6 +965,17 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "model.UpdateMatchRequest": {
+            "type": "object",
+            "properties": {
+                "left_score": {
+                    "type": "integer"
+                },
+                "right_score": {
+                    "type": "integer"
                 }
             }
         },
