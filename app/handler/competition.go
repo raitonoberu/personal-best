@@ -19,7 +19,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body model.CreateCompetitionRequest true "body"
-// @Success 200 {object} model.CreateCompetitionResponse
+// @Success 201 {object} model.CreateCompetitionResponse
 // @Router /api/competitions [post]
 func (h Handler) CreateCompetition(c echo.Context) error {
 	if err := h.ensureCanCreate(c); err != nil {

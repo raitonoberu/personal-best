@@ -45,7 +45,7 @@ func (h Handler) ListCompetitionRegistrations(c echo.Context) error {
 // @Description Competition must not be closed yet
 // @Tags registration
 // @Param request path model.RegisterForCompetitionRequest true "path"
-// @Success 201
+// @Success 204
 // @Router /api/competitions/{id}/registrations [post]
 func (h Handler) RegisterForCompetition(c echo.Context) error {
 	if err := h.ensureCanParticipate(c); err != nil {
@@ -86,7 +86,7 @@ func (h Handler) RegisterForCompetition(c echo.Context) error {
 		return err
 	}
 
-	return c.NoContent(201)
+	return c.NoContent(204)
 }
 
 // @Summary Unregister for competition
@@ -94,7 +94,7 @@ func (h Handler) RegisterForCompetition(c echo.Context) error {
 // @Description Competition must not be closed yet
 // @Tags registration
 // @Param request path model.UnregisterForCompetitionRequest true "path"
-// @Success 200
+// @Success 204
 // @Router /api/competitions/{id}/registrations [delete]
 func (h Handler) UnregisterForCompetition(c echo.Context) error {
 	if err := h.ensureCanParticipate(c); err != nil {
@@ -134,7 +134,7 @@ func (h Handler) UnregisterForCompetition(c echo.Context) error {
 		return err
 	}
 
-	return c.NoContent(200)
+	return c.NoContent(204)
 }
 
 // @Summary Update registration
@@ -145,7 +145,7 @@ func (h Handler) UnregisterForCompetition(c echo.Context) error {
 // @Param player_id path int true "player_id"
 // @Param comp_id path int true "comp_id"
 // @Param request body model.UpdateRegistrationRequest true "body"
-// @Success 201
+// @Success 204
 // @Router /api/competitions/{comp_id}/registrations/{player_id} [patch]
 func (h Handler) UpdateRegistration(c echo.Context) error {
 	if err := h.ensureCanCreate(c); err != nil {
@@ -162,5 +162,5 @@ func (h Handler) UpdateRegistration(c echo.Context) error {
 		return err
 	}
 
-	return c.NoContent(201)
+	return c.NoContent(204)
 }

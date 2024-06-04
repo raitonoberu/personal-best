@@ -18,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body model.AdminCreateUserRequest true "body"
-// @Success 200 {object} model.AuthResponse
+// @Success 201 {object} model.AuthResponse
 // @Router /api/admin/users [post]
 func (h Handler) AdminCreateUser(c echo.Context) error {
 	if err := h.ensureAdmin(c); err != nil {
@@ -105,7 +105,7 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
-	return c.JSON(200, model.NewAuthResponse(user.ID, token))
+	return c.JSON(201, model.NewAuthResponse(user.ID, token))
 }
 
 // @Summary Update user
@@ -118,7 +118,7 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 // @Produce json
 // @Param id path int true "id"
 // @Param request body model.AdminUpdateUserRequest true "body"
-// @Success 200
+// @Success 204
 // @Router /api/admin/users/{id} [patch]
 func (h Handler) AdminUpdateUser(c echo.Context) error {
 	if err := h.ensureAdmin(c); err != nil {
@@ -180,5 +180,5 @@ func (h Handler) AdminUpdateUser(c echo.Context) error {
 		return err
 	}
 
-	return c.NoContent(200)
+	return c.NoContent(204)
 }
