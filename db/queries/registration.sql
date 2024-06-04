@@ -40,3 +40,12 @@ JOIN
 WHERE
     competition_id = ? AND is_approved = TRUE AND is_dropped = FALSE;
 
+-- name: UpdateRegistration :exec
+UPDATE
+    registrations
+SET
+    is_approved = coalesce(sqlc.narg('is_approved'), is_approved),
+    is_dropped = coalesce(sqlc.narg('is_dropped'), is_dropped)
+WHERE
+    player_id = sqlc.arg('player_id') AND competition_id = sqlc.arg('competition_id');
+

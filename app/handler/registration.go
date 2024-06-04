@@ -142,11 +142,11 @@ func (h Handler) UnregisterForCompetition(c echo.Context) error {
 // @Description This is made for trainers/admins
 // @Description Here you can approve or drop players
 // @Tags registration
-// @Param id path int true "id"
+// @Param player_id path int true "player_id"
 // @Param comp_id path int true "comp_id"
 // @Param request body model.UpdateRegistrationRequest true "body"
 // @Success 201
-// @Router /api/competitions/{comp_id}/registrations/{id} [patch]
+// @Router /api/competitions/{comp_id}/registrations/{player_id} [patch]
 func (h Handler) UpdateRegistration(c echo.Context) error {
 	if err := h.ensureCanCreate(c); err != nil {
 		return err
@@ -158,6 +158,9 @@ func (h Handler) UpdateRegistration(c echo.Context) error {
 	}
 
 	err := h.service.UpdateRegistration(c.Request().Context(), req)
+	if err != nil {
+		return err
+	}
 
 	return c.NoContent(201)
 }

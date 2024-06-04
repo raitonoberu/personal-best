@@ -201,11 +201,20 @@ func (s Service) SetMatchScore(ctx context.Context, matchID, leftScore, rightSco
 		return ErrCantChangeScore
 	}
 
-	return s.queries.UpdateMatchScore(ctx, sqlc.UpdateMatchScoreParams{
+	err = s.queries.UpdateMatchScore(ctx, sqlc.UpdateMatchScoreParams{
 		ID:         matchID,
 		LeftScore:  &leftScore,
 		RightScore: &rightScore,
 	})
+	if err != nil {
+		return err
+	}
+
+	err = s.UpdateMatches(ctx, match.CompetitionID)
+	if err != nil && err != ErrNotEnoughPlayers {
+		return err
+	}
+	return nil
 }
 
 func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) (*model.ListMatchesResponse, error) {

@@ -24,7 +24,7 @@ var secret = os.Getenv("SECRET")
 // @Accept json
 // @Produce json
 // @Param request body model.RegisterRequest true "body"
-// @Success 200 {object} model.AuthResponse
+// @Success 201 {object} model.AuthResponse
 // @Router /api/register [post]
 func (h Handler) Register(c echo.Context) error {
 	var req model.RegisterRequest

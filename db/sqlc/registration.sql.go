@@ -203,3 +203,30 @@ func (q *Queries) ListPlayerRegistrations(ctx context.Context, playerID int64) (
 	}
 	return items, nil
 }
+
+const updateRegistration = `-- name: UpdateRegistration :exec
+UPDATE
+    registrations
+SET
+    is_approved = coalesce(?1, is_approved),
+    is_dropped = coalesce(?2, is_dropped)
+WHERE
+    player_id = ?3 AND competition_id = ?4
+`
+
+type UpdateRegistrationParams struct {
+	IsApproved    *bool
+	IsDropped     *bool
+	PlayerID      int64
+	CompetitionID int64
+}
+
+func (q *Queries) UpdateRegistration(ctx context.Context, arg UpdateRegistrationParams) error {
+	_, err := q.db.ExecContext(ctx, updateRegistration,
+		arg.IsApproved,
+		arg.IsDropped,
+		arg.PlayerID,
+		arg.CompetitionID,
+	)
+	return err
+}

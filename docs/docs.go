@@ -223,6 +223,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/competitions/{comp_id}/registrations/{player_id}": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "This is made for trainers/admins\nHere you can approve or drop players",
+                "tags": [
+                    "registration"
+                ],
+                "summary": "Update registration",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "player_id",
+                        "name": "player_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "comp_id",
+                        "name": "comp_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
         "/api/competitions/{id}": {
             "get": {
                 "security": [
@@ -345,11 +389,11 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "This is made for trainers/admins\nHere you can approve or ban players",
+                "description": "Competition must not be closed yet",
                 "tags": [
                     "registration"
                 ],
-                "summary": "Update registration",
+                "summary": "Register for competition",
                 "parameters": [
                     {
                         "type": "integer",
@@ -449,8 +493,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/model.AuthResponse"
                         }
@@ -976,6 +1020,17 @@ const docTemplate = `{
                 },
                 "right_score": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.UpdateRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "is_approved": {
+                    "type": "boolean"
+                },
+                "is_dropped": {
+                    "type": "boolean"
                 }
             }
         },

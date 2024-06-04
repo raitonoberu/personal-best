@@ -156,8 +156,8 @@ type UnregisterForCompetitionRequest struct {
 }
 
 type UpdateRegistrationRequest struct {
-	ID            int64 `json:"-" param:"id" validate:"required"`
-	CompetitionID int64 `json:"-" param:"comp_id" validate:"required"`
 	IsApproved    *bool `json:"is_approved"`
 	IsDropped     *bool `json:"is_dropped"`
+	PlayerID      int64 `json:"-" param:"player_id" validate:"required"`
+	CompetitionID int64 `json:"-" param:"comp_id" validate:"required"`
 }

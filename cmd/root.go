@@ -38,6 +38,7 @@ var App = &cli.App{
 
 		router.POST("/api/competitions/:id/registrations", h.RegisterForCompetition, middleware.Auth)
 		router.GET("/api/competitions/:id/registrations", h.ListCompetitionRegistrations, middleware.Auth)
+		router.PATCH("/api/competitions/:comp_id/registrations/:player_id", h.UpdateRegistration, middleware.Auth)
 		router.DELETE("/api/competitions/:id/registrations", h.UnregisterForCompetition, middleware.Auth)
 
 		router.GET("/api/competitions/:id/matches", h.ListMatches, middleware.Auth)

@@ -275,6 +275,13 @@ definitions:
       right_score:
         type: integer
     type: object
+  model.UpdateRegistrationRequest:
+    properties:
+      is_approved:
+        type: boolean
+      is_dropped:
+        type: boolean
+    type: object
   model.UpdateUserRequest:
     properties:
       email:
@@ -439,6 +446,36 @@ paths:
       summary: Update match
       tags:
       - match
+  /api/competitions/{comp_id}/registrations/{player_id}:
+    patch:
+      description: |-
+        This is made for trainers/admins
+        Here you can approve or drop players
+      parameters:
+      - description: player_id
+        in: path
+        name: player_id
+        required: true
+        type: integer
+      - description: comp_id
+        in: path
+        name: comp_id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateRegistrationRequest'
+      responses:
+        "201":
+          description: Created
+      security:
+      - Bearer: []
+      summary: Update registration
+      tags:
+      - registration
   /api/competitions/{id}:
     get:
       description: Return competition by ID
@@ -528,9 +565,7 @@ paths:
       tags:
       - registration
     post:
-      description: |-
-        This is made for trainers/admins
-        Here you can approve or ban players
+      description: Competition must not be closed yet
       parameters:
       - in: path
         name: id
@@ -541,7 +576,7 @@ paths:
           description: Created
       security:
       - Bearer: []
-      summary: Update registration
+      summary: Register for competition
       tags:
       - registration
   /api/login:
@@ -585,8 +620,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/model.AuthResponse'
       summary: Register user
