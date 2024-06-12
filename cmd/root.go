@@ -7,6 +7,7 @@ import (
 	"github.com/raitonoberu/personal-best/app/handler"
 	"github.com/raitonoberu/personal-best/app/middleware"
 	"github.com/raitonoberu/personal-best/app/router"
+	"github.com/raitonoberu/personal-best/app/service"
 	"github.com/raitonoberu/personal-best/cmd/admin"
 	"github.com/urfave/cli/v2"
 )
@@ -20,15 +21,24 @@ var App = &cli.App{
 			return err
 		}
 
-		router := router.New()
+		service, err := service.New(db)
+		if err != nil {
+			return err
+		}
 
-		h := handler.New(db)
+		h := handler.New(db, service)
+
+		router := router.New()
 		router.POST("/api/login", h.Login)
 		router.POST("/api/register", h.Register)
 
 		router.GET("/api/users/:id", h.GetUser, middleware.Auth)
 		router.PATCH("/api/users", h.UpdateUser, middleware.Auth)
 		router.DELETE("/api/users", h.DeleteUser, middleware.Auth)
+
+		router.GET("/api/users/:user_id/documents", h.ListDocuments, middleware.Auth)
+		router.POST("/api/documents", h.SaveDocument, middleware.Auth)
+		router.GET("/api/documents/:id", h.GetDocument, middleware.Auth)
 
 		router.POST("/api/competitions", h.CreateCompetition, middleware.Auth)
 		router.GET("/api/competitions", h.ListCompetitions, middleware.Auth)
@@ -46,6 +56,7 @@ var App = &cli.App{
 
 		router.GET("/api/roles", h.ListRoles, middleware.Auth)
 
+		// TODO: remove /admin/... endpoints
 		router.POST("/api/admin/users", h.AdminCreateUser, middleware.Auth)
 		router.GET("/api/admin/users", h.AdminListUsers, middleware.Auth)
 		router.PATCH("/api/admin/users/:id", h.AdminUpdateUser, middleware.Auth)

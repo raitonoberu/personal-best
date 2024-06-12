@@ -10,15 +10,15 @@ import (
 type Handler struct {
 	db      *sql.DB
 	queries *sqlc.Queries
-	service service.Service
+	service *service.Service
 }
 
-func New(db *sql.DB) Handler {
+func New(db *sql.DB, service *service.Service) Handler {
 	queries := sqlc.New(db)
 
 	return Handler{
 		db:      db,
 		queries: queries,
-		service: service.New(db),
+		service: service,
 	}
 }

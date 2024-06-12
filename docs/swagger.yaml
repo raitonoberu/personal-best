@@ -104,6 +104,17 @@ definitions:
       id:
         type: integer
     type: object
+  model.Document:
+    properties:
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   model.GetCompetitionResponse:
     properties:
       age:
@@ -126,6 +137,11 @@ definitions:
         type: integer
       trainer:
         $ref: '#/definitions/model.GetUserResponse'
+    type: object
+  model.GetDocumentResponse:
+    properties:
+      url:
+        type: string
     type: object
   model.GetUserResponse:
     properties:
@@ -622,6 +638,56 @@ paths:
       summary: Register for competition
       tags:
       - registration
+  /api/documents:
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Save player document.
+        File can be one of:
+        jpeg, png, webp, gif, pdf
+      parameters:
+      - description: document
+        in: formData
+        name: document
+        required: true
+        type: file
+      - description: name
+        in: formData
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Save document
+      tags:
+      - document
+  /api/documents/{id}:
+    get:
+      description: Get URL of document
+      parameters:
+      - description: id of document
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetDocumentResponse'
+      security:
+      - Bearer: []
+      summary: Get document
+      tags:
+      - document
   /api/login:
     post:
       consumes:
@@ -740,6 +806,29 @@ paths:
       summary: Get user
       tags:
       - user
+  /api/users/{user_id}/documents:
+    get:
+      description: List documents of player
+      parameters:
+      - description: id of user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Document'
+            type: array
+      security:
+      - Bearer: []
+      summary: List player documents
+      tags:
+      - document
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.

@@ -12,6 +12,8 @@ var (
 	ErrStartBeforeClose    = echo.NewHTTPError(400, "Соревнование не может начинаться до конца регистрации")
 	ErrEndBeforeStart      = echo.NewHTTPError(400, "Время начала должно быть раньше времени конца")
 	ErrCompetitionClosed   = echo.NewHTTPError(400, "Запись на сорвенование закрыта")
+	ErrFileTooBig          = echo.NewHTTPError(400, "Файл слишком большой")
+	ErrFileUnsupported     = echo.NewHTTPError(400, "Файл имеет неподдерживаемый формат")
 	ErrNotAuthorized       = echo.NewHTTPError(401, "Вы не авторизованы")
 	ErrWrongPassword       = echo.NewHTTPError(401, "Неверный пароль")
 	ErrAccessDenied        = echo.NewHTTPError(403, "Недостаточно прав")

@@ -480,6 +480,81 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/documents": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Save player document.\nFile can be one of:\njpeg, png, webp, gif, pdf",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "document"
+                ],
+                "summary": "Save document",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "document",
+                        "name": "document",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/api/documents/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get URL of document",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "document"
+                ],
+                "summary": "Get document",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of document",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GetDocumentResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Login user, return JWT token \u0026 ID",
@@ -655,6 +730,43 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/users/{user_id}/documents": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List documents of player",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "document"
+                ],
+                "summary": "List player documents",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of user",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Document"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -812,6 +924,23 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Document": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.GetCompetitionResponse": {
             "type": "object",
             "properties": {
@@ -844,6 +973,14 @@ const docTemplate = `{
                 },
                 "trainer": {
                     "$ref": "#/definitions/model.GetUserResponse"
+                }
+            }
+        },
+        "model.GetDocumentResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         },

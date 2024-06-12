@@ -15,6 +15,9 @@ migrate:
 rollback:
 	dbmate rollback
 
+s3:
+	minio server .data
+
 build:
 	docker compose build
 
