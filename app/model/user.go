@@ -18,6 +18,12 @@ type PlayerResponse struct {
 	Position    *string `json:"position,omitempty"`
 }
 
+type ListUsersResponse struct {
+	Count int               `json:"count"`
+	Total int               `json:"total"`
+	Users []GetUserResponse `json:"users"`
+}
+
 type GetUserResponse struct {
 	ID         int64  `json:"id"`
 	RoleID     int64  `json:"role_id"`

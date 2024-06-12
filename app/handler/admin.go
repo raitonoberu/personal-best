@@ -108,6 +108,32 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 	return c.JSON(201, model.NewAuthResponse(user.ID, token))
 }
 
+// @Summary List users
+// @Security Bearer
+// @Description List users with specified role.
+// @Description Can be used for checking players before approving.
+// @Tags admin
+// @Produce json
+// @Param request query model.AdminListUsersRequest true "query"
+// @Success 200 {object} model.ListUsersResponse
+// @Router /api/admin/users [get]
+func (h Handler) AdminListUsers(c echo.Context) error {
+	if err := h.ensureAdmin(c); err != nil {
+		return err
+	}
+
+	var req model.AdminListUsersRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	resp, err := h.service.ListUsers(c.Request().Context(), req.RoleID, req.Limit, req.Offset)
+	if err != nil {
+		return err
+	}
+	return c.JSON(200, resp)
+}
+
 // @Summary Update user
 // @Security Bearer
 // @Description Update user.

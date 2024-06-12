@@ -64,3 +64,16 @@ DELETE FROM
 WHERE
     id = ?;
 
+-- name: ListUsers :many
+SELECT
+    sqlc.embed(users), sqlc.embed(user_players),
+    COUNT() OVER() as total
+FROM
+    users
+LEFT JOIN
+    user_players ON users.id = user_players.user_id
+WHERE
+    role_id = ?
+LIMIT
+    ? OFFSET ?;
+

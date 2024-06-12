@@ -167,6 +167,72 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
+const listUsers = `-- name: ListUsers :many
+SELECT
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, user_players.user_id, user_players.birth_date, user_players.is_male, user_players.phone, user_players.telegram, user_players.preparation, user_players.position,
+    COUNT() OVER() as total
+FROM
+    users
+LEFT JOIN
+    user_players ON users.id = user_players.user_id
+WHERE
+    role_id = ?
+LIMIT
+    ? OFFSET ?
+`
+
+type ListUsersParams struct {
+	RoleID int64
+	Limit  int64
+	Offset int64
+}
+
+type ListUsersRow struct {
+	User       User
+	UserPlayer UserPlayer
+	Total      int64
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers, arg.RoleID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListUsersRow
+	for rows.Next() {
+		var i ListUsersRow
+		if err := rows.Scan(
+			&i.User.ID,
+			&i.User.RoleID,
+			&i.User.Email,
+			&i.User.Password,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.MiddleName,
+			&i.User.CreatedAt,
+			&i.UserPlayer.UserID,
+			&i.UserPlayer.BirthDate,
+			&i.UserPlayer.IsMale,
+			&i.UserPlayer.Phone,
+			&i.UserPlayer.Telegram,
+			&i.UserPlayer.Preparation,
+			&i.UserPlayer.Position,
+			&i.Total,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePlayer = `-- name: UpdatePlayer :exec
 UPDATE
     players

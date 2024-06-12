@@ -166,6 +166,17 @@ definitions:
       total:
         type: integer
     type: object
+  model.ListUsersResponse:
+    properties:
+      count:
+        type: integer
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/model.GetUserResponse'
+        type: array
+    type: object
   model.LoginRequest:
     properties:
       email:
@@ -305,6 +316,38 @@ info:
   version: "0.1"
 paths:
   /api/admin/users:
+    get:
+      description: |-
+        List users with specified role.
+        Can be used for checking players before approving.
+      parameters:
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - default: 3
+        in: query
+        minimum: 1
+        name: role_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListUsersResponse'
+      security:
+      - Bearer: []
+      summary: List users
+      tags:
+      - admin
     post:
       consumes:
       - application/json
@@ -322,8 +365,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/model.AuthResponse'
       security:
@@ -354,8 +397,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
       security:
       - Bearer: []
       summary: Update user
@@ -406,8 +449,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/model.CreateCompetitionResponse'
       security:
@@ -469,8 +512,8 @@ paths:
         schema:
           $ref: '#/definitions/model.UpdateRegistrationRequest'
       responses:
-        "201":
-          description: Created
+        "204":
+          description: No Content
       security:
       - Bearer: []
       summary: Update registration
@@ -536,8 +579,8 @@ paths:
         required: true
         type: integer
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
       security:
       - Bearer: []
       summary: Unregister for competition
@@ -572,8 +615,8 @@ paths:
         required: true
         type: integer
       responses:
-        "201":
-          description: Created
+        "204":
+          description: No Content
       security:
       - Bearer: []
       summary: Register for competition

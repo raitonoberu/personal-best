@@ -14,6 +14,12 @@ type AdminCreateUserRequest struct {
 	Telegram  *string `json:"telegram" validate:"omitempty,startswith=@"`
 }
 
+type AdminListUsersRequest struct {
+	Limit  int64 `query:"limit" validate:"gte=1,lte=100" default:"10"`
+	Offset int64 `query:"offset" validate:"gte=0"`
+	RoleID int64 `query:"role_id" json:"role_id" validate:"gte=1" default:"3"`
+}
+
 type AdminUpdateUserRequest struct {
 	ID         int64   `json:"-" param:"id" validate:"required"`
 	RoleID     *int64  `json:"role_id"`
