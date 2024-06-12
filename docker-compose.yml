@@ -17,7 +17,7 @@ services:
       - .db:/app/.db
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2024-06-11T03-13-30Z-cpuv1
     command: server --console-address ":9001" /data/
     restart: always
     environment:
