@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
@@ -61,7 +62,15 @@ func (h Handler) UpdateUser(c echo.Context) error {
 		req.Password = &hashStr
 	}
 
-	if err := h.queries.UpdateUser(c.Request().Context(),
+	tx, err := h.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	qtx := h.queries.WithTx(tx)
+
+	if err := qtx.UpdateUser(c.Request().Context(),
 		sqlc.UpdateUserParams{
 			ID:         getUserID(c),
 			Email:      req.Email,
@@ -71,9 +80,28 @@ func (h Handler) UpdateUser(c echo.Context) error {
 			LastName:   req.LastName,
 		},
 	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrUserNotFound
-		}
+		return err
+	}
+
+	var birthDate *time.Time
+	if req.BirthDate != nil {
+		date := parseDate(*req.BirthDate)
+		birthDate = &date
+	}
+
+	if err := qtx.UpdatePlayer(c.Request().Context(),
+		sqlc.UpdatePlayerParams{
+			UserID:    getUserID(c),
+			BirthDate: birthDate,
+			IsMale:    req.IsMale,
+			Phone:     req.Phone,
+			Telegram:  req.Telegram,
+		},
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 	return c.NoContent(204)

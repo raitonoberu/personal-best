@@ -1338,11 +1338,17 @@ const docTemplate = `{
         "model.UpdateUserRequest": {
             "type": "object",
             "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
                 "first_name": {
                     "type": "string"
+                },
+                "is_male": {
+                    "type": "boolean"
                 },
                 "last_name": {
                     "type": "string"
@@ -1351,6 +1357,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "telegram": {
                     "type": "string"
                 }
             }

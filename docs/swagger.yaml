@@ -331,15 +331,23 @@ definitions:
     type: object
   model.UpdateUserRequest:
     properties:
+      birth_date:
+        type: string
       email:
         type: string
       first_name:
         type: string
+      is_male:
+        type: boolean
       last_name:
         type: string
       middle_name:
         type: string
       password:
+        type: string
+      phone:
+        type: string
+      telegram:
         type: string
     type: object
 info:

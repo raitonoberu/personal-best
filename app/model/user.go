@@ -87,6 +87,11 @@ type UpdateUserRequest struct {
 	FirstName  *string `json:"first_name"`
 	LastName   *string `json:"last_name"`
 	MiddleName *string `json:"middle_name"`
-	Email      *string `json:"email"`
+	Email      *string `json:"email" validate:"omitempty,email"`
 	Password   *string `json:"password"`
+
+	BirthDate *string `json:"birth_date" validate:"omitempty,date"`
+	IsMale    *bool   `json:"is_male"`
+	Phone     *string `json:"phone" validate:"omitempty,e164"`
+	Telegram  *string `json:"telegram" validate:"omitempty,startswith=@"`
 }

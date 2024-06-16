@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
 	"github.com/raitonoberu/personal-best/db/sqlc"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // @Summary Create user
@@ -162,6 +163,17 @@ func (h Handler) AdminUpdateUser(c echo.Context) error {
 		}
 	}
 
+	if req.Password != nil {
+		hash, err := bcrypt.GenerateFromPassword(
+			[]byte(*req.Password), bcrypt.DefaultCost,
+		)
+		if err != nil {
+			return err
+		}
+		hashStr := string(hash)
+		req.Password = &hashStr
+	}
+
 	tx, err := h.db.Begin()
 	if err != nil {
 		return err
@@ -205,6 +217,5 @@ func (h Handler) AdminUpdateUser(c echo.Context) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
-
 	return c.NoContent(204)
 }
