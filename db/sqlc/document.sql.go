@@ -34,6 +34,18 @@ func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) 
 	return err
 }
 
+const deleteDocument = `-- name: DeleteDocument :exec
+DELETE FROM
+    documents
+WHERE
+    id = ?
+`
+
+func (q *Queries) DeleteDocument(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteDocument, id)
+	return err
+}
+
 const getDocument = `-- name: GetDocument :one
 SELECT
     id, player_id, name, url, expires_at, created_at

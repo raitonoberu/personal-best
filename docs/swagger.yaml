@@ -643,7 +643,7 @@ paths:
       consumes:
       - multipart/form-data
       description: |-
-        Save player document.
+        Save player document. Max file size is 10MB
         File can be one of:
         jpeg, png, webp, gif, pdf
       parameters:
@@ -668,6 +668,22 @@ paths:
       tags:
       - document
   /api/documents/{id}:
+    delete:
+      description: What do you think it does?
+      parameters:
+      - description: id of document
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Delete document
+      tags:
+      - document
     get:
       description: Get URL of document
       parameters:

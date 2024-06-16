@@ -487,7 +487,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Save player document.\nFile can be one of:\njpeg, png, webp, gif, pdf",
+                "description": "Save player document. Max file size is 10MB\nFile can be one of:\njpeg, png, webp, gif, pdf",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -551,6 +551,32 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.GetDocumentResponse"
                         }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "What do you think it does?",
+                "tags": [
+                    "document"
+                ],
+                "summary": "Delete document",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of document",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }

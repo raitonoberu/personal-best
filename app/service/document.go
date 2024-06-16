@@ -83,3 +83,19 @@ func (s Service) GetDocument(ctx context.Context, id, userID int64, admin bool) 
 	}
 	return url.String(), err
 }
+
+func (s Service) DeleteDocument(ctx context.Context, id, userID int64, admin bool) error {
+	record, err := s.queries.GetDocument(ctx, id)
+	if err != nil {
+		return err
+	}
+	if record.PlayerID != userID && !admin {
+		return errors.New("Нет прав на удаление документа")
+	}
+
+	err = s.queries.DeleteDocument(ctx, id)
+	if err != nil {
+		return err
+	}
+	return s.s3.RemoveObject(ctx, documentBucket, record.Url, minio.RemoveObjectOptions{})
+}

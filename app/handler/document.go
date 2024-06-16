@@ -18,7 +18,7 @@ var allowedContentTypes = []string{
 
 // @Summary Save document
 // @Security Bearer
-// @Description Save player document.
+// @Description Save player document. Max file size is 10MB
 // @Description File can be one of:
 // @Description jpeg, png, webp, gif, pdf
 // @Tags document
@@ -105,6 +105,24 @@ func (h Handler) GetDocument(c echo.Context) error {
 	return c.JSON(200, model.GetDocumentResponse{
 		URL: url,
 	})
+}
+
+// @Summary Delete document
+// @Security Bearer
+// @Description What do you think it does?
+// @Tags document
+// @Param id path int true "id of document"
+// @Success 204
+// @Router /api/documents/{id} [delete]
+func (h Handler) DeleteDocument(c echo.Context) error {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+
+	err := h.service.DeleteDocument(c.Request().Context(),
+		id, getUserID(c), h.getUserRole(c).IsAdmin)
+	if err != nil {
+		return err
+	}
+	return c.NoContent(204)
 }
 
 func guessContentType(filename string) string {

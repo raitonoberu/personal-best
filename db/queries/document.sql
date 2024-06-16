@@ -19,3 +19,9 @@ FROM
     documents
 WHERE
     player_id = ?;
+
+-- name: DeleteDocument :exec
+DELETE FROM
+    documents
+WHERE
+    id = ?;

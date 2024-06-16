@@ -39,6 +39,7 @@ var App = &cli.App{
 		router.GET("/api/users/:user_id/documents", h.ListDocuments, middleware.Auth)
 		router.POST("/api/documents", h.SaveDocument, middleware.Auth)
 		router.GET("/api/documents/:id", h.GetDocument, middleware.Auth)
+		router.DELETE("/api/documents/:id", h.DeleteDocument, middleware.Auth)
 
 		router.POST("/api/competitions", h.CreateCompetition, middleware.Auth)
 		router.GET("/api/competitions", h.ListCompetitions, middleware.Auth)
