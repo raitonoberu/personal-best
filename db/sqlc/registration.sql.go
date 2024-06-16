@@ -152,22 +152,35 @@ func (q *Queries) ListCompetitionRegistrations(ctx context.Context, competitionI
 
 const listPlayerRegistrations = `-- name: ListPlayerRegistrations :many
 SELECT
-    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at, registrations.competition_id, registrations.player_id, registrations.is_approved, registrations.is_dropped, registrations.created_at
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
+    competitions.id, competitions.trainer_id, competitions.name, competitions.description, competitions.tours, competitions.age, competitions.size, competitions.closes_at, competitions.created_at,
+    registrations.competition_id, registrations.player_id, registrations.is_approved, registrations.is_dropped, registrations.created_at,
+    COUNT() OVER() as total
 FROM
     registrations
-JOIN
-    competitions ON (competitions.id = registrations.competitions_id)
+    JOIN competitions ON competitions.id = registrations.competition_id
+    JOIN users ON users.id = competitions.trainer_id
 WHERE
-    player_id = ?
+    registrations.player_id = ? AND registrations.is_approved = true
+LIMIT
+    ? OFFSET ?
 `
 
-type ListPlayerRegistrationsRow struct {
-	Competition  Competition
-	Registration Registration
+type ListPlayerRegistrationsParams struct {
+	PlayerID int64
+	Limit    int64
+	Offset   int64
 }
 
-func (q *Queries) ListPlayerRegistrations(ctx context.Context, playerID int64) ([]ListPlayerRegistrationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listPlayerRegistrations, playerID)
+type ListPlayerRegistrationsRow struct {
+	User         User
+	Competition  Competition
+	Registration Registration
+	Total        int64
+}
+
+func (q *Queries) ListPlayerRegistrations(ctx context.Context, arg ListPlayerRegistrationsParams) ([]ListPlayerRegistrationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listPlayerRegistrations, arg.PlayerID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -176,6 +189,14 @@ func (q *Queries) ListPlayerRegistrations(ctx context.Context, playerID int64) (
 	for rows.Next() {
 		var i ListPlayerRegistrationsRow
 		if err := rows.Scan(
+			&i.User.ID,
+			&i.User.RoleID,
+			&i.User.Email,
+			&i.User.Password,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.MiddleName,
+			&i.User.CreatedAt,
 			&i.Competition.ID,
 			&i.Competition.TrainerID,
 			&i.Competition.Name,
@@ -190,6 +211,7 @@ func (q *Queries) ListPlayerRegistrations(ctx context.Context, playerID int64) (
 			&i.Registration.IsApproved,
 			&i.Registration.IsDropped,
 			&i.Registration.CreatedAt,
+			&i.Total,
 		); err != nil {
 			return nil, err
 		}

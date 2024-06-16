@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -148,6 +149,37 @@ func (h Handler) ListCompetitions(c echo.Context) error {
 		return err
 	}
 	return c.JSON(200, model.NewListCompetitionsResponse(competitions))
+}
+
+// @Summary List player registrations
+// @Security Bearer
+// @Description List competitions where player is registered
+// @Tags registration
+// @Produce json
+// @Param user_id path int true "id of user"
+// @Param query query model.ListPlayerRegistrationsRequest true "query"
+// @Success 200 {object} model.ListPlayerRegistrationsResponse
+// @Router /api/users/{user_id}/registrations [get]
+func (h Handler) ListPlayerRegistrations(c echo.Context) error {
+	var req model.ListPlayerRegistrationsRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	id, _ := strconv.ParseInt(c.Param("user_id"), 10, 64)
+
+	rows, err := h.queries.ListPlayerRegistrations(c.Request().Context(),
+		sqlc.ListPlayerRegistrationsParams{
+			PlayerID: id,
+			Limit:    req.Limit,
+			Offset:   req.Offset,
+		})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrCompetitionNotFound
+		}
+		return err
+	}
+	return c.JSON(200, model.NewListPlayerRegistrationsResponse(rows))
 }
 
 func (h Handler) UpdateCompetition(c echo.Context) error {

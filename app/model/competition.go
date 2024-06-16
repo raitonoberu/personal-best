@@ -121,22 +121,33 @@ type DeleteCompetitionRequest struct {
 	ID int64 `param:"id" validate:"required"`
 }
 
-type Registration struct {
+type CompetitionRegistration struct {
 	IsApproved bool            `json:"is_approved"`
 	IsDropped  bool            `json:"is_dropped"`
 	User       GetUserResponse `json:"user"`
+}
+
+type PlayerRegistration struct {
+	IsApproved  bool                   `json:"is_approved"`
+	IsDropped   bool                   `json:"is_dropped"`
+	Competition GetCompetitionResponse `json:"competition"`
 }
 
 type ListCompetitionRegistrationsRequest struct {
 	ID int64 `param:"id" validate:"required"`
 }
 
-type ListCompetitionRegistrationsResponse []Registration
+type ListPlayerRegistrationsRequest struct {
+	Limit  int64 `query:"limit" validate:"gte=1,lte=100" default:"10"`
+	Offset int64 `query:"offset" validate:"gte=0"`
+}
+
+type ListCompetitionRegistrationsResponse []CompetitionRegistration
 
 func NewListCompetitionRegistrationsResponse(rows []sqlc.ListCompetitionRegistrationsRow) ListCompetitionRegistrationsResponse {
-	regs := make([]Registration, len(rows))
+	regs := make([]CompetitionRegistration, len(rows))
 	for i := 0; i < len(rows); i++ {
-		regs[i] = Registration{
+		regs[i] = CompetitionRegistration{
 			IsApproved: rows[i].Registration.IsApproved,
 			IsDropped:  rows[i].Registration.IsDropped,
 			User: NewGetUserResponse(sqlc.GetUserRow{
@@ -145,6 +156,36 @@ func NewListCompetitionRegistrationsResponse(rows []sqlc.ListCompetitionRegistra
 		}
 	}
 	return regs
+}
+
+type ListPlayerRegistrationsResponse struct {
+	Count         int                  `json:"count"`
+	Total         int                  `json:"total"`
+	Registrations []PlayerRegistration `json:"registrations"`
+}
+
+func NewListPlayerRegistrationsResponse(rows []sqlc.ListPlayerRegistrationsRow) ListPlayerRegistrationsResponse {
+	regs := make([]PlayerRegistration, len(rows))
+	for i := 0; i < len(rows); i++ {
+		regs[i] = PlayerRegistration{
+			IsApproved: rows[i].Registration.IsApproved,
+			IsDropped:  rows[i].Registration.IsDropped,
+			Competition: NewGetCompetitionResponse(sqlc.GetCompetitionRow{
+				Competition: rows[i].Competition,
+				User:        rows[i].User,
+			}, nil),
+		}
+	}
+	var total int
+	if len(rows) > 0 {
+		total = int(rows[0].Total)
+	}
+
+	return ListPlayerRegistrationsResponse{
+		Count:         len(rows),
+		Total:         total,
+		Registrations: regs,
+	}
 }
 
 type RegisterForCompetitionRequest struct {

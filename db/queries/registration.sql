@@ -22,13 +22,18 @@ WHERE
 
 -- name: ListPlayerRegistrations :many
 SELECT
-    sqlc.embed(competitions), sqlc.embed(registrations)
+    sqlc.embed(users),
+    sqlc.embed(competitions),
+    sqlc.embed(registrations),
+    COUNT() OVER() as total
 FROM
     registrations
-JOIN
-    competitions ON (competitions.id = registrations.competitions_id)
+    JOIN competitions ON competitions.id = registrations.competition_id
+    JOIN users ON users.id = competitions.trainer_id
 WHERE
-    player_id = ?;
+    registrations.player_id = ? AND registrations.is_approved = true
+LIMIT
+    ? OFFSET ?;
 
 -- name: ListCompetitionPlayers :many
 SELECT

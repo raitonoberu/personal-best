@@ -423,7 +423,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Registration"
+                                "$ref": "#/definitions/model.CompetitionRegistration"
                             }
                         }
                     }
@@ -793,6 +793,54 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/users/{user_id}/registrations": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List competitions where player is registered",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registration"
+                ],
+                "summary": "List player registrations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id of user",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ListPlayerRegistrationsResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -901,6 +949,20 @@ const docTemplate = `{
                 },
                 "start_time": {
                     "type": "string"
+                }
+            }
+        },
+        "model.CompetitionRegistration": {
+            "type": "object",
+            "properties": {
+                "is_approved": {
+                    "type": "boolean"
+                },
+                "is_dropped": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.GetUserResponse"
                 }
             }
         },
@@ -1070,6 +1132,23 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ListPlayerRegistrationsResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "registrations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PlayerRegistration"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.ListUsersResponse": {
             "type": "object",
             "properties": {
@@ -1128,6 +1207,20 @@ const docTemplate = `{
                 },
                 "start_time": {
                     "type": "string"
+                }
+            }
+        },
+        "model.PlayerRegistration": {
+            "type": "object",
+            "properties": {
+                "competition": {
+                    "$ref": "#/definitions/model.GetCompetitionResponse"
+                },
+                "is_approved": {
+                    "type": "boolean"
+                },
+                "is_dropped": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1195,20 +1288,6 @@ const docTemplate = `{
                 "telegram": {
                     "description": "TODO: more validations",
                     "type": "string"
-                }
-            }
-        },
-        "model.Registration": {
-            "type": "object",
-            "properties": {
-                "is_approved": {
-                    "type": "boolean"
-                },
-                "is_dropped": {
-                    "type": "boolean"
-                },
-                "user": {
-                    "$ref": "#/definitions/model.GetUserResponse"
                 }
             }
         },

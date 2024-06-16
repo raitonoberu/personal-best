@@ -72,6 +72,15 @@ definitions:
     - end_time
     - start_time
     type: object
+  model.CompetitionRegistration:
+    properties:
+      is_approved:
+        type: boolean
+      is_dropped:
+        type: boolean
+      user:
+        $ref: '#/definitions/model.GetUserResponse'
+    type: object
   model.CreateCompetitionRequest:
     properties:
       age:
@@ -182,6 +191,17 @@ definitions:
       total:
         type: integer
     type: object
+  model.ListPlayerRegistrationsResponse:
+    properties:
+      count:
+        type: integer
+      registrations:
+        items:
+          $ref: '#/definitions/model.PlayerRegistration'
+        type: array
+      total:
+        type: integer
+    type: object
   model.ListUsersResponse:
     properties:
       count:
@@ -221,6 +241,15 @@ definitions:
         type: array
       start_time:
         type: string
+    type: object
+  model.PlayerRegistration:
+    properties:
+      competition:
+        $ref: '#/definitions/model.GetCompetitionResponse'
+      is_approved:
+        type: boolean
+      is_dropped:
+        type: boolean
     type: object
   model.PlayerResponse:
     properties:
@@ -268,15 +297,6 @@ definitions:
     - password
     - phone
     - telegram
-    type: object
-  model.Registration:
-    properties:
-      is_approved:
-        type: boolean
-      is_dropped:
-        type: boolean
-      user:
-        $ref: '#/definitions/model.GetUserResponse'
     type: object
   model.RoleResponse:
     properties:
@@ -616,7 +636,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Registration'
+              $ref: '#/definitions/model.CompetitionRegistration'
             type: array
       security:
       - Bearer: []
@@ -845,6 +865,37 @@ paths:
       summary: List player documents
       tags:
       - document
+  /api/users/{user_id}/registrations:
+    get:
+      description: List competitions where player is registered
+      parameters:
+      - description: id of user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListPlayerRegistrationsResponse'
+      security:
+      - Bearer: []
+      summary: List player registrations
+      tags:
+      - registration
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.
