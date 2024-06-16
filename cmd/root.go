@@ -36,6 +36,10 @@ var App = &cli.App{
 		router.PATCH("/api/users", h.UpdateUser, middleware.Auth)
 		router.DELETE("/api/users", h.DeleteUser, middleware.Auth)
 
+		router.GET("/api/users", h.AdminListUsers, middleware.Auth)
+		router.POST("/api/users", h.AdminCreateUser, middleware.Auth)
+		router.PATCH("/api/users/:id", h.AdminUpdateUser, middleware.Auth)
+
 		router.GET("/api/users/:user_id/documents", h.ListDocuments, middleware.Auth)
 		router.POST("/api/documents", h.SaveDocument, middleware.Auth)
 		router.GET("/api/documents/:id", h.GetDocument, middleware.Auth)
@@ -58,7 +62,7 @@ var App = &cli.App{
 
 		router.GET("/api/roles", h.ListRoles, middleware.Auth)
 
-		// TODO: remove /admin/... endpoints
+		// DEPRECATED
 		router.POST("/api/admin/users", h.AdminCreateUser, middleware.Auth)
 		router.GET("/api/admin/users", h.AdminListUsers, middleware.Auth)
 		router.PATCH("/api/admin/users/:id", h.AdminUpdateUser, middleware.Auth)

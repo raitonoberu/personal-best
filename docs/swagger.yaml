@@ -351,95 +351,6 @@ info:
   title: Personal Best API
   version: "0.1"
 paths:
-  /api/admin/users:
-    get:
-      description: |-
-        List users with specified role.
-        Can be used for checking players before approving.
-      parameters:
-      - default: 10
-        in: query
-        maximum: 100
-        minimum: 1
-        name: limit
-        type: integer
-      - in: query
-        minimum: 0
-        name: offset
-        type: integer
-      - default: 3
-        in: query
-        minimum: 1
-        name: role_id
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ListUsersResponse'
-      security:
-      - Bearer: []
-      summary: List users
-      tags:
-      - admin
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Create new user with desired params.
-        Player-related params only required when creating player
-        (is_male, phone, telegram, birth_date).
-      parameters:
-      - description: body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.AdminCreateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.AuthResponse'
-      security:
-      - Bearer: []
-      summary: Create user
-      tags:
-      - admin
-  /api/admin/users/{id}:
-    patch:
-      consumes:
-      - application/json
-      description: |-
-        Update user.
-        Player-related params only changed when updating player
-        (is_male, phone, telegram, birth_date).
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.AdminUpdateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-      security:
-      - Bearer: []
-      summary: Update user
-      tags:
-      - admin
   /api/competitions:
     get:
       description: |-
@@ -800,6 +711,38 @@ paths:
       summary: Delete user
       tags:
       - user
+    get:
+      description: |-
+        List users with specified role.
+        Can be used for checking players before approving.
+      parameters:
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - default: 3
+        in: query
+        minimum: 1
+        name: role_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListUsersResponse'
+      security:
+      - Bearer: []
+      summary: List users
+      tags:
+      - admin
     patch:
       description: |-
         Update user info.
@@ -819,6 +762,32 @@ paths:
       summary: Update user
       tags:
       - user
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Create new user with desired params.
+        Player-related params only required when creating player
+        (is_male, phone, telegram, birth_date).
+      parameters:
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminCreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+      security:
+      - Bearer: []
+      summary: Create user
+      tags:
+      - admin
   /api/users/{id}:
     get:
       description: |-
@@ -842,6 +811,35 @@ paths:
       summary: Get user
       tags:
       - user
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Update user.
+        Player-related params only changed when updating player
+        (is_male, phone, telegram, birth_date).
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminUpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Update user
+      tags:
+      - admin
   /api/users/{user_id}/documents:
     get:
       description: List documents of player

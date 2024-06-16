@@ -19,7 +19,7 @@ import (
 // @Produce json
 // @Param request body model.AdminCreateUserRequest true "body"
 // @Success 201 {object} model.AuthResponse
-// @Router /api/admin/users [post]
+// @Router /api/users [post]
 func (h Handler) AdminCreateUser(c echo.Context) error {
 	if err := h.ensureAdmin(c); err != nil {
 		return err
@@ -116,7 +116,7 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 // @Produce json
 // @Param request query model.AdminListUsersRequest true "query"
 // @Success 200 {object} model.ListUsersResponse
-// @Router /api/admin/users [get]
+// @Router /api/users [get]
 func (h Handler) AdminListUsers(c echo.Context) error {
 	if err := h.ensureAdmin(c); err != nil {
 		return err
@@ -145,7 +145,7 @@ func (h Handler) AdminListUsers(c echo.Context) error {
 // @Param id path int true "id"
 // @Param request body model.AdminUpdateUserRequest true "body"
 // @Success 204
-// @Router /api/admin/users/{id} [patch]
+// @Router /api/users/{id} [patch]
 func (h Handler) AdminUpdateUser(c echo.Context) error {
 	if err := h.ensureAdmin(c); err != nil {
 		return err
