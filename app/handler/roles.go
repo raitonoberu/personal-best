@@ -43,14 +43,6 @@ func (h Handler) getUserRole(c echo.Context) sqlc.Role {
 	return role
 }
 
-func (h Handler) ensureCanView(c echo.Context) error {
-	role := h.getUserRole(c)
-	if !role.CanView {
-		return ErrAccessDenied
-	}
-	return nil
-}
-
 func (h Handler) ensureCanParticipate(c echo.Context) error {
 	role := h.getUserRole(c)
 	if !role.CanParticipate {

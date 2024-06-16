@@ -15,10 +15,6 @@ import (
 // @Success 200 {object} model.ListMatchesResponse
 // @Router /api/competitions/{id}/matches [get]
 func (h Handler) ListMatches(c echo.Context) error {
-	if err := h.ensureCanView(c); err != nil {
-		return err
-	}
-
 	var req model.ListMatchesRequest
 	if err := c.Bind(&req); err != nil {
 		return err

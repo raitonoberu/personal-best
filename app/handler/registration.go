@@ -20,10 +20,6 @@ import (
 // @Success 200 {object} model.ListCompetitionRegistrationsResponse
 // @Router /api/competitions/{id}/registrations [get]
 func (h Handler) ListCompetitionRegistrations(c echo.Context) error {
-	if err := h.ensureCanView(c); err != nil {
-		return err
-	}
-
 	var req model.ListCompetitionRegistrationsRequest
 	if err := c.Bind(&req); err != nil {
 		return err

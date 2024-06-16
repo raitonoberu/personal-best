@@ -106,10 +106,6 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 // @Success 200 {object} model.GetCompetitionResponse
 // @Router /api/competitions/{id} [get]
 func (h Handler) GetCompetition(c echo.Context) error {
-	if err := h.ensureCanView(c); err != nil {
-		return err
-	}
-
 	var req model.GetCompetitionRequest
 	if err := c.Bind(&req); err != nil {
 		return err
@@ -138,10 +134,6 @@ func (h Handler) GetCompetition(c echo.Context) error {
 // @Success 200 {object} model.ListCompetitionsResponse
 // @Router /api/competitions [get]
 func (h Handler) ListCompetitions(c echo.Context) error {
-	if err := h.ensureCanView(c); err != nil {
-		return err
-	}
-
 	var req model.ListCompetitionsRequest
 	if err := c.Bind(&req); err != nil {
 		return err

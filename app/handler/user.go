@@ -26,12 +26,6 @@ func (h Handler) GetUser(c echo.Context) error {
 		return err
 	}
 
-	if req.ID != getUserID(c) {
-		if err := h.ensureCanView(c); err != nil {
-			return err
-		}
-	}
-
 	userRow, err := h.queries.GetUser(c.Request().Context(), req.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
