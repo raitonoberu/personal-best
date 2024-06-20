@@ -31,7 +31,7 @@ FROM
     JOIN competitions ON competitions.id = registrations.competition_id
     JOIN users ON users.id = competitions.trainer_id
 WHERE
-    registrations.player_id = ? AND registrations.is_approved = true
+    registrations.player_id = ?
 LIMIT
     ? OFFSET ?;
 
