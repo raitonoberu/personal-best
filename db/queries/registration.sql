@@ -54,3 +54,10 @@ SET
 WHERE
     player_id = sqlc.arg('player_id') AND competition_id = sqlc.arg('competition_id');
 
+-- name: GetRegistration :one
+SELECT
+    *
+FROM
+    registrations
+WHERE
+    player_id = ? AND competition_id = ?;

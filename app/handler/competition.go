@@ -182,6 +182,13 @@ func (h Handler) ListPlayerRegistrations(c echo.Context) error {
 	return c.JSON(200, model.NewListPlayerRegistrationsResponse(rows))
 }
 
+// @Summary Update competition
+// @Security Bearer
+// @Tags competition
+// @Param id path int true "comp id"
+// @Param request body model.UpdateCompetitionRequest true "body"
+// @Success 204
+// @Router /api/competitions/{id} [patch]
 func (h Handler) UpdateCompetition(c echo.Context) error {
 	if err := h.ensureCanCreate(c); err != nil {
 		return err
@@ -196,6 +203,8 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 	if req.ClosesAt != nil {
 		date := parseDate(*req.ClosesAt)
 		closesAt = &date
+
+		// TODO: check if it's not after first match and not in past
 	}
 
 	err := h.queries.UpdateCompetition(c.Request().Context(),
@@ -211,6 +220,12 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 	return c.NoContent(204)
 }
 
+// @Summary Delete competition
+// @Security Bearer
+// @Tags competition
+// @Param id path int true "id of competition"
+// @Success 204
+// @Router /api/competitions/{id} [delete]
 func (h Handler) DeleteCompetition(c echo.Context) error {
 	if err := h.ensureCanCreate(c); err != nil {
 		return err

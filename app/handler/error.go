@@ -14,6 +14,7 @@ var (
 	ErrCompetitionClosed   = echo.NewHTTPError(400, "Запись на сорвенование закрыта")
 	ErrFileTooBig          = echo.NewHTTPError(400, "Файл слишком большой")
 	ErrFileUnsupported     = echo.NewHTTPError(400, "Файл имеет неподдерживаемый формат")
+	ErrPlayerDropped       = echo.NewHTTPError(400, "Вы исключены из соревнования")
 	ErrNotAuthorized       = echo.NewHTTPError(401, "Вы не авторизованы")
 	ErrWrongPassword       = echo.NewHTTPError(401, "Неверный пароль")
 	ErrAccessDenied        = echo.NewHTTPError(403, "Недостаточно прав")

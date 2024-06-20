@@ -115,6 +115,18 @@ func (h Handler) UnregisterForCompetition(c echo.Context) error {
 		return ErrCompetitionClosed
 	}
 
+	reg, err := h.queries.GetRegistration(c.Request().Context(),
+		sqlc.GetRegistrationParams{
+			CompetitionID: req.ID,
+			PlayerID:      getUserID(c),
+		})
+	if err != nil {
+		return err
+	}
+	if reg.IsDropped {
+		return ErrPlayerDropped
+	}
+
 	if err := h.queries.DeleteRegistration(c.Request().Context(),
 		sqlc.DeleteRegistrationParams{
 			CompetitionID: req.ID,

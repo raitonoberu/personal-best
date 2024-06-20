@@ -315,6 +315,19 @@ definitions:
       name:
         type: string
     type: object
+  model.UpdateCompetitionRequest:
+    properties:
+      closes_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    type: object
   model.UpdateMatchRequest:
     properties:
       left_score:
@@ -475,6 +488,21 @@ paths:
       tags:
       - registration
   /api/competitions/{id}:
+    delete:
+      parameters:
+      - description: id of competition
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Delete competition
+      tags:
+      - competition
     get:
       description: Return competition by ID
       parameters:
@@ -492,6 +520,27 @@ paths:
       security:
       - Bearer: []
       summary: Get competition
+      tags:
+      - competition
+    patch:
+      parameters:
+      - description: comp id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateCompetitionRequest'
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Update competition
       tags:
       - competition
   /api/competitions/{id}/matches:

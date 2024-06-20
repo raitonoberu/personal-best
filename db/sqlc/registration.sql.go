@@ -50,6 +50,33 @@ func (q *Queries) DeleteRegistration(ctx context.Context, arg DeleteRegistration
 	return err
 }
 
+const getRegistration = `-- name: GetRegistration :one
+SELECT
+    competition_id, player_id, is_approved, is_dropped, created_at
+FROM
+    registrations
+WHERE
+    player_id = ? AND competition_id = ?
+`
+
+type GetRegistrationParams struct {
+	PlayerID      int64
+	CompetitionID int64
+}
+
+func (q *Queries) GetRegistration(ctx context.Context, arg GetRegistrationParams) (Registration, error) {
+	row := q.db.QueryRowContext(ctx, getRegistration, arg.PlayerID, arg.CompetitionID)
+	var i Registration
+	err := row.Scan(
+		&i.CompetitionID,
+		&i.PlayerID,
+		&i.IsApproved,
+		&i.IsDropped,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listCompetitionPlayers = `-- name: ListCompetitionPlayers :many
 SELECT
     users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at
@@ -161,7 +188,7 @@ FROM
     JOIN competitions ON competitions.id = registrations.competition_id
     JOIN users ON users.id = competitions.trainer_id
 WHERE
-    registrations.player_id = ? AND registrations.is_approved = true
+    registrations.player_id = ?
 LIMIT
     ? OFFSET ?
 `
