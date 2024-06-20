@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
 	"reflect"
 	"time"
 
@@ -215,6 +217,32 @@ func (h Handler) AdminUpdateUser(c echo.Context) error {
 	}
 
 	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return c.NoContent(204)
+}
+
+// @Summary Delete user
+// @Security Bearer
+// @Description Delete user by id
+// @Tags admin
+// @Param id path int true "id"
+// @Success 204
+// @Router /api/users/{id} [delete]
+func (h Handler) AdminDeleteUser(c echo.Context) error {
+	if err := h.ensureAdmin(c); err != nil {
+		return err
+	}
+
+	var req model.AdminDeleteUserRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := h.queries.DeleteUser(c.Request().Context(), req.ID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 	return c.NoContent(204)

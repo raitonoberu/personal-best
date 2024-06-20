@@ -36,5 +36,5 @@ type AdminUpdateUserRequest struct {
 }
 
 type AdminDeleteUserRequest struct {
-	ID int64 `json:"id" validate:"required"`
+	ID int64 `param:"id" validate:"required"`
 }

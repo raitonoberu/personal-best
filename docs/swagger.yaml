@@ -846,6 +846,22 @@ paths:
       tags:
       - admin
   /api/users/{id}:
+    delete:
+      description: Delete user by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      security:
+      - Bearer: []
+      summary: Delete user
+      tags:
+      - admin
     get:
       description: |-
         Return single user by ID
