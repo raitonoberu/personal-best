@@ -16,7 +16,7 @@ var App = &cli.App{
 	Name:  "personal-best",
 	Usage: "run HTTP server",
 	Action: func(ctx *cli.Context) error {
-		db, err := sql.Open("sqlite", ".db/db.sqlite")
+		db, err := sql.Open("sqlite", ".db/db.sqlite?_pragma=foreign_keys(1)")
 		if err != nil {
 			return err
 		}
@@ -35,6 +35,7 @@ var App = &cli.App{
 		router.GET("/api/users/:id", h.GetUser, middleware.Auth)
 		router.PATCH("/api/users", h.UpdateUser, middleware.Auth)
 		router.DELETE("/api/users", h.DeleteUser, middleware.Auth)
+		router.DELETE("/api/users/:id", h.AdminDeleteUser, middleware.Auth)
 
 		router.GET("/api/users", h.AdminListUsers, middleware.Auth)
 		router.POST("/api/users", h.AdminCreateUser, middleware.Auth)
