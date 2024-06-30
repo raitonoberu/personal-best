@@ -245,14 +245,17 @@ func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) 
 			StartTime:  m.StartTime,
 			LeftScore:  m.LeftScore,
 			RightScore: m.RightScore,
-			LeftTeam:   []model.GetUserResponse{},
-			RightTeam:  []model.GetUserResponse{},
+			LeftTeam:   []model.MatchPlayer{},
+			RightTeam:  []model.MatchPlayer{},
 		}
 	}
 
 	for _, r := range matchPlayerRows {
 		m := matchesMap[r.MatchPlayer.MatchID]
-		p := model.NewGetPlayerResponse(r.User, r.Player)
+		p := model.MatchPlayer{
+			ID:   r.User.ID,
+			Name: r.User.FirstName + " " + r.User.LastName,
+		}
 		if r.MatchPlayer.Team == false {
 			m.LeftTeam = append(m.LeftTeam, p)
 		} else {

@@ -1274,7 +1274,7 @@ const docTemplate = `{
                 "left_team": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.GetUserResponse"
+                        "$ref": "#/definitions/model.MatchPlayer"
                     }
                 },
                 "right_score": {
@@ -1283,10 +1283,21 @@ const docTemplate = `{
                 "right_team": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.GetUserResponse"
+                        "$ref": "#/definitions/model.MatchPlayer"
                     }
                 },
                 "start_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MatchPlayer": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

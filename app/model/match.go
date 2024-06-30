@@ -15,12 +15,17 @@ type ListMatchesResponse struct {
 }
 
 type Match struct {
-	ID         int64             `json:"id"`
-	StartTime  time.Time         `json:"start_time"`
-	LeftScore  *int64            `json:"left_score"`
-	RightScore *int64            `json:"right_score"`
-	LeftTeam   []GetUserResponse `json:"left_team"`
-	RightTeam  []GetUserResponse `json:"right_team"`
+	ID         int64         `json:"id"`
+	StartTime  time.Time     `json:"start_time"`
+	LeftScore  *int64        `json:"left_score"`
+	RightScore *int64        `json:"right_score"`
+	LeftTeam   []MatchPlayer `json:"left_team"`
+	RightTeam  []MatchPlayer `json:"right_team"`
+}
+
+type MatchPlayer struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type UpdateMatchRequest struct {

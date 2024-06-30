@@ -231,15 +231,22 @@ definitions:
         type: integer
       left_team:
         items:
-          $ref: '#/definitions/model.GetUserResponse'
+          $ref: '#/definitions/model.MatchPlayer'
         type: array
       right_score:
         type: integer
       right_team:
         items:
-          $ref: '#/definitions/model.GetUserResponse'
+          $ref: '#/definitions/model.MatchPlayer'
         type: array
       start_time:
+        type: string
+    type: object
+  model.MatchPlayer:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
   model.PlayerRegistration:
