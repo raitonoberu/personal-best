@@ -130,7 +130,7 @@ SELECT
 FROM
     registrations
     JOIN users ON (users.id = registrations.player_id)
-    JOIN players ON (players.id = registrations.player_id)
+    JOIN players ON (players.user_id = registrations.player_id)
 WHERE
     competition_id = ?
 `
