@@ -126,18 +126,19 @@ func (q *Queries) ListCompetitionPlayers(ctx context.Context, competitionID int6
 
 const listCompetitionRegistrations = `-- name: ListCompetitionRegistrations :many
 SELECT
-    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, registrations.competition_id, registrations.player_id, registrations.is_approved, registrations.is_dropped, registrations.created_at
+    registrations.competition_id, registrations.player_id, registrations.is_approved, registrations.is_dropped, registrations.created_at, users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at, players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.preparation, players.position
 FROM
     registrations
-JOIN
-    users ON (users.id = registrations.player_id)
+    JOIN users ON (users.id = registrations.player_id)
+    JOIN players ON (players.id = registrations.player_id)
 WHERE
     competition_id = ?
 `
 
 type ListCompetitionRegistrationsRow struct {
-	User         User
 	Registration Registration
+	User         User
+	Player       Player
 }
 
 func (q *Queries) ListCompetitionRegistrations(ctx context.Context, competitionID int64) ([]ListCompetitionRegistrationsRow, error) {
@@ -150,6 +151,11 @@ func (q *Queries) ListCompetitionRegistrations(ctx context.Context, competitionI
 	for rows.Next() {
 		var i ListCompetitionRegistrationsRow
 		if err := rows.Scan(
+			&i.Registration.CompetitionID,
+			&i.Registration.PlayerID,
+			&i.Registration.IsApproved,
+			&i.Registration.IsDropped,
+			&i.Registration.CreatedAt,
 			&i.User.ID,
 			&i.User.RoleID,
 			&i.User.Email,
@@ -158,11 +164,13 @@ func (q *Queries) ListCompetitionRegistrations(ctx context.Context, competitionI
 			&i.User.LastName,
 			&i.User.MiddleName,
 			&i.User.CreatedAt,
-			&i.Registration.CompetitionID,
-			&i.Registration.PlayerID,
-			&i.Registration.IsApproved,
-			&i.Registration.IsDropped,
-			&i.Registration.CreatedAt,
+			&i.Player.UserID,
+			&i.Player.BirthDate,
+			&i.Player.IsMale,
+			&i.Player.Phone,
+			&i.Player.Telegram,
+			&i.Player.Preparation,
+			&i.Player.Position,
 		); err != nil {
 			return nil, err
 		}

@@ -150,9 +150,7 @@ func NewListCompetitionRegistrationsResponse(rows []sqlc.ListCompetitionRegistra
 		regs[i] = CompetitionRegistration{
 			IsApproved: rows[i].Registration.IsApproved,
 			IsDropped:  rows[i].Registration.IsDropped,
-			User: NewGetUserResponse(sqlc.GetUserRow{
-				User: rows[i].User,
-			}),
+			User:       NewGetPlayerResponse(rows[i].User, rows[i].Player),
 		}
 	}
 	return regs

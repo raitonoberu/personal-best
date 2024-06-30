@@ -12,11 +12,11 @@ WHERE
 
 -- name: ListCompetitionRegistrations :many
 SELECT
-    sqlc.embed(users), sqlc.embed(registrations)
+    sqlc.embed(registrations), sqlc.embed(users), sqlc.embed(players)
 FROM
     registrations
-JOIN
-    users ON (users.id = registrations.player_id)
+    JOIN users ON (users.id = registrations.player_id)
+    JOIN players ON (players.id = registrations.player_id)
 WHERE
     competition_id = ?;
 
