@@ -40,4 +40,36 @@ DELETE FROM
 WHERE
     match_id = ?;
 
+-- name: GetMatchPlayersToUpdateScore :many
+SELECT
+    *
+FROM
+    match_players
+JOIN
+    matches ON match_id = matches.id
+WHERE
+    player_id = ? AND matches.competition_id = ?
+ORDER BY
+    match_id DESC
+LIMIT 2;
 
+-- name: SetMatchPlayerWinLoseScores :exec
+UPDATE
+    match_players
+SET
+    win_score = ?, lose_score = ?
+WHERE
+    match_id = ? AND player_id = ?;
+
+-- name: GetMatchPlayerLastScores :one
+SELECT
+    *
+FROM
+    match_players
+JOIN
+    matches ON match_id = matches.id
+WHERE
+    player_id = ? AND win_score IS NOT NULL AND matches.competition_id = ?
+ORDER BY
+    match_id DESC
+LIMIT 1;

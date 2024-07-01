@@ -77,6 +77,64 @@ func (q *Queries) GetRegistration(ctx context.Context, arg GetRegistrationParams
 	return i, err
 }
 
+const listApprovedCompetitionPlayers = `-- name: ListApprovedCompetitionPlayers :many
+SELECT
+    users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
+    players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.preparation, players.position
+FROM
+    registrations
+JOIN
+    users ON (users.id = registrations.player_id)
+JOIN
+    players ON (players.user_id = registrations.player_id)
+WHERE
+    competition_id = ? AND is_approved = TRUE
+`
+
+type ListApprovedCompetitionPlayersRow struct {
+	User   User
+	Player Player
+}
+
+func (q *Queries) ListApprovedCompetitionPlayers(ctx context.Context, competitionID int64) ([]ListApprovedCompetitionPlayersRow, error) {
+	rows, err := q.db.QueryContext(ctx, listApprovedCompetitionPlayers, competitionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListApprovedCompetitionPlayersRow
+	for rows.Next() {
+		var i ListApprovedCompetitionPlayersRow
+		if err := rows.Scan(
+			&i.User.ID,
+			&i.User.RoleID,
+			&i.User.Email,
+			&i.User.Password,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.MiddleName,
+			&i.User.CreatedAt,
+			&i.Player.UserID,
+			&i.Player.BirthDate,
+			&i.Player.IsMale,
+			&i.Player.Phone,
+			&i.Player.Telegram,
+			&i.Player.Preparation,
+			&i.Player.Position,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCompetitionPlayers = `-- name: ListCompetitionPlayers :many
 SELECT
     users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at

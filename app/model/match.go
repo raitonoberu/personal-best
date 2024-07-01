@@ -24,8 +24,10 @@ type Match struct {
 }
 
 type MatchPlayer struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	WinScore  *int64 `json:"win_score"`
+	LoseScore *int64 `json:"lose_score"`
 }
 
 type UpdateMatchRequest struct {

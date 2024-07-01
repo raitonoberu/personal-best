@@ -45,6 +45,19 @@ JOIN
 WHERE
     competition_id = ? AND is_approved = TRUE AND is_dropped = FALSE;
 
+-- name: ListApprovedCompetitionPlayers :many
+SELECT
+    sqlc.embed(users),
+    sqlc.embed(players)
+FROM
+    registrations
+JOIN
+    users ON (users.id = registrations.player_id)
+JOIN
+    players ON (players.user_id = registrations.player_id)
+WHERE
+    competition_id = ? AND is_approved = TRUE;
+
 -- name: UpdateRegistration :exec
 UPDATE
     registrations

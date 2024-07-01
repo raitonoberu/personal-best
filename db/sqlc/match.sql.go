@@ -42,6 +42,31 @@ func (q *Queries) DeleteMatches(ctx context.Context, competitionID int64) error 
 	return err
 }
 
+const getLastMatch = `-- name: GetLastMatch :one
+SELECT
+    id, competition_id, start_time, left_score, right_score
+FROM
+    matches
+WHERE
+    competition_id = ? AND left_score IS NOT NULL AND right_score IS NOT NULL
+ORDER BY
+    start_time DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLastMatch(ctx context.Context, competitionID int64) (Match, error) {
+	row := q.db.QueryRowContext(ctx, getLastMatch, competitionID)
+	var i Match
+	err := row.Scan(
+		&i.ID,
+		&i.CompetitionID,
+		&i.StartTime,
+		&i.LeftScore,
+		&i.RightScore,
+	)
+	return i, err
+}
+
 const getMatch = `-- name: GetMatch :one
 SELECT
     id, competition_id, start_time, left_score, right_score
@@ -70,7 +95,7 @@ SELECT
 FROM
     matches
 WHERE
-    competition_id = ? AND left_score = NULL AND right_score = NULL
+    competition_id = ? AND left_score IS NULL AND right_score IS NULL
 ORDER BY
     start_time
 LIMIT 1

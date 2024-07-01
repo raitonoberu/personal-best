@@ -403,6 +403,43 @@
                 }
             }
         },
+        "/api/competitions/{id}/scores": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get final scores for all competition players",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "competition"
+                ],
+                "summary": "Get competition scores",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "competition id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CompetitionScore"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/documents": {
             "post": {
                 "security": [
@@ -1039,6 +1076,20 @@
                 }
             }
         },
+        "model.CompetitionScore": {
+            "type": "object",
+            "properties": {
+                "lose_score": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.GetUserResponse"
+                },
+                "win_score": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.CreateCompetitionRequest": {
             "type": "object",
             "required": [
@@ -1289,8 +1340,14 @@
                 "id": {
                     "type": "integer"
                 },
+                "lose_score": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
+                },
+                "win_score": {
+                    "type": "integer"
                 }
             }
         },

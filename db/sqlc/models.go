@@ -45,10 +45,12 @@ type Match struct {
 }
 
 type MatchPlayer struct {
-	MatchID  int64
-	PlayerID int64
-	Position string
-	Team     bool
+	MatchID   int64
+	PlayerID  int64
+	Position  string
+	Team      bool
+	WinScore  *int64
+	LoseScore *int64
 }
 
 type Player struct {

@@ -241,3 +241,21 @@ func (h Handler) DeleteCompetition(c echo.Context) error {
 	}
 	return c.NoContent(204)
 }
+
+// @Summary Get competition scores
+// @Security Bearer
+// @Description Get final scores for all competition players
+// @Tags competition
+// @Produce json
+// @Param id path int true "competition id"
+// @Success 200 {object} []model.CompetitionScore
+// @Router /api/competitions/{id}/scores [get]
+func (h Handler) ListScores(c echo.Context) error {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+
+	scores, err := h.service.GetScores(c.Request().Context(), id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(200, scores)
+}

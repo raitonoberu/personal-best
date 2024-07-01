@@ -200,3 +200,9 @@ type UpdateRegistrationRequest struct {
 	PlayerID      int64 `json:"-" param:"player_id" validate:"required"`
 	CompetitionID int64 `json:"-" param:"comp_id" validate:"required"`
 }
+
+type CompetitionScore struct {
+	WinScore  int             `json:"win_score"`
+	LoseScore int             `json:"lose_score"`
+	User      GetUserResponse `json:"user"`
+}

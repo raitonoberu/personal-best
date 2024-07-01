@@ -6,13 +6,24 @@ FROM
 WHERE
     id = ?;
 
+-- name: GetLastMatch :one
+SELECT
+    *
+FROM
+    matches
+WHERE
+    competition_id = ? AND left_score IS NOT NULL AND right_score IS NOT NULL
+ORDER BY
+    start_time DESC
+LIMIT 1;
+
 -- name: GetNextMatch :one
 SELECT
     *
 FROM
     matches
 WHERE
-    competition_id = ? AND left_score = NULL AND right_score = NULL
+    competition_id = ? AND left_score IS NULL AND right_score IS NULL
 ORDER BY
     start_time
 LIMIT 1;

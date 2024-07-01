@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"strings"
+	"time"
 )
 
 const createMatchPlayer = `-- name: CreateMatchPlayer :exec
@@ -46,9 +47,129 @@ func (q *Queries) DeleteMatchPlayers(ctx context.Context, matchID int64) error {
 	return err
 }
 
+const getMatchPlayerLastScores = `-- name: GetMatchPlayerLastScores :one
+SELECT
+    match_id, player_id, position, team, win_score, lose_score, id, competition_id, start_time, left_score, right_score
+FROM
+    match_players
+JOIN
+    matches ON match_id = matches.id
+WHERE
+    player_id = ? AND win_score IS NOT NULL AND matches.competition_id = ?
+ORDER BY
+    match_id DESC
+LIMIT 1
+`
+
+type GetMatchPlayerLastScoresParams struct {
+	PlayerID      int64
+	CompetitionID int64
+}
+
+type GetMatchPlayerLastScoresRow struct {
+	MatchID       int64
+	PlayerID      int64
+	Position      string
+	Team          bool
+	WinScore      *int64
+	LoseScore     *int64
+	ID            int64
+	CompetitionID int64
+	StartTime     time.Time
+	LeftScore     *int64
+	RightScore    *int64
+}
+
+func (q *Queries) GetMatchPlayerLastScores(ctx context.Context, arg GetMatchPlayerLastScoresParams) (GetMatchPlayerLastScoresRow, error) {
+	row := q.db.QueryRowContext(ctx, getMatchPlayerLastScores, arg.PlayerID, arg.CompetitionID)
+	var i GetMatchPlayerLastScoresRow
+	err := row.Scan(
+		&i.MatchID,
+		&i.PlayerID,
+		&i.Position,
+		&i.Team,
+		&i.WinScore,
+		&i.LoseScore,
+		&i.ID,
+		&i.CompetitionID,
+		&i.StartTime,
+		&i.LeftScore,
+		&i.RightScore,
+	)
+	return i, err
+}
+
+const getMatchPlayersToUpdateScore = `-- name: GetMatchPlayersToUpdateScore :many
+SELECT
+    match_id, player_id, position, team, win_score, lose_score, id, competition_id, start_time, left_score, right_score
+FROM
+    match_players
+JOIN
+    matches ON match_id = matches.id
+WHERE
+    player_id = ? AND matches.competition_id = ?
+ORDER BY
+    match_id DESC
+LIMIT 2
+`
+
+type GetMatchPlayersToUpdateScoreParams struct {
+	PlayerID      int64
+	CompetitionID int64
+}
+
+type GetMatchPlayersToUpdateScoreRow struct {
+	MatchID       int64
+	PlayerID      int64
+	Position      string
+	Team          bool
+	WinScore      *int64
+	LoseScore     *int64
+	ID            int64
+	CompetitionID int64
+	StartTime     time.Time
+	LeftScore     *int64
+	RightScore    *int64
+}
+
+func (q *Queries) GetMatchPlayersToUpdateScore(ctx context.Context, arg GetMatchPlayersToUpdateScoreParams) ([]GetMatchPlayersToUpdateScoreRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMatchPlayersToUpdateScore, arg.PlayerID, arg.CompetitionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMatchPlayersToUpdateScoreRow
+	for rows.Next() {
+		var i GetMatchPlayersToUpdateScoreRow
+		if err := rows.Scan(
+			&i.MatchID,
+			&i.PlayerID,
+			&i.Position,
+			&i.Team,
+			&i.WinScore,
+			&i.LoseScore,
+			&i.ID,
+			&i.CompetitionID,
+			&i.StartTime,
+			&i.LeftScore,
+			&i.RightScore,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMatchPlayers = `-- name: ListMatchPlayers :many
 SELECT
-    match_id, player_id, position, team
+    match_id, player_id, position, team, win_score, lose_score
 FROM
     match_players
 WHERE
@@ -69,6 +190,8 @@ func (q *Queries) ListMatchPlayers(ctx context.Context, matchID int64) ([]MatchP
 			&i.PlayerID,
 			&i.Position,
 			&i.Team,
+			&i.WinScore,
+			&i.LoseScore,
 		); err != nil {
 			return nil, err
 		}
@@ -85,7 +208,7 @@ func (q *Queries) ListMatchPlayers(ctx context.Context, matchID int64) ([]MatchP
 
 const listMatchPlayersBatch = `-- name: ListMatchPlayersBatch :many
 SELECT
-    match_id, player_id, position, team
+    match_id, player_id, position, team, win_score, lose_score
 FROM
     match_players
 WHERE
@@ -116,6 +239,8 @@ func (q *Queries) ListMatchPlayersBatch(ctx context.Context, matchIds []int64) (
 			&i.PlayerID,
 			&i.Position,
 			&i.Team,
+			&i.WinScore,
+			&i.LoseScore,
 		); err != nil {
 			return nil, err
 		}
@@ -132,7 +257,7 @@ func (q *Queries) ListMatchPlayersBatch(ctx context.Context, matchIds []int64) (
 
 const listMatchPlayersWithPlayersBatch = `-- name: ListMatchPlayersWithPlayersBatch :many
 SELECT
-    match_players.match_id, match_players.player_id, match_players.position, match_players.team,
+    match_players.match_id, match_players.player_id, match_players.position, match_players.team, match_players.win_score, match_players.lose_score,
     users.id, users.role_id, users.email, users.password, users.first_name, users.last_name, users.middle_name, users.created_at,
     players.user_id, players.birth_date, players.is_male, players.phone, players.telegram, players.preparation, players.position
 FROM
@@ -175,6 +300,8 @@ func (q *Queries) ListMatchPlayersWithPlayersBatch(ctx context.Context, matchIds
 			&i.MatchPlayer.PlayerID,
 			&i.MatchPlayer.Position,
 			&i.MatchPlayer.Team,
+			&i.MatchPlayer.WinScore,
+			&i.MatchPlayer.LoseScore,
 			&i.User.ID,
 			&i.User.RoleID,
 			&i.User.Email,
@@ -202,4 +329,30 @@ func (q *Queries) ListMatchPlayersWithPlayersBatch(ctx context.Context, matchIds
 		return nil, err
 	}
 	return items, nil
+}
+
+const setMatchPlayerWinLoseScores = `-- name: SetMatchPlayerWinLoseScores :exec
+UPDATE
+    match_players
+SET
+    win_score = ?, lose_score = ?
+WHERE
+    match_id = ? AND player_id = ?
+`
+
+type SetMatchPlayerWinLoseScoresParams struct {
+	WinScore  *int64
+	LoseScore *int64
+	MatchID   int64
+	PlayerID  int64
+}
+
+func (q *Queries) SetMatchPlayerWinLoseScores(ctx context.Context, arg SetMatchPlayerWinLoseScoresParams) error {
+	_, err := q.db.ExecContext(ctx, setMatchPlayerWinLoseScores,
+		arg.WinScore,
+		arg.LoseScore,
+		arg.MatchID,
+		arg.PlayerID,
+	)
+	return err
 }

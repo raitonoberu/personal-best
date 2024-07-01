@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log"
 	"slices"
 	"time"
 
@@ -182,6 +183,7 @@ func (s Service) updateMatch(ctx context.Context, comp sqlc.Competition, matches
 	return tx.Commit()
 }
 
+// SetMatchScore saves the score and makes it possible to start next match
 func (s Service) SetMatchScore(ctx context.Context, matchID, leftScore, rightScore int64) error {
 	match, err := s.queries.GetMatch(ctx, matchID)
 	if err != nil {
@@ -210,11 +212,76 @@ func (s Service) SetMatchScore(ctx context.Context, matchID, leftScore, rightSco
 		return err
 	}
 
+	if err := s.UpdatePlayerScores(ctx, match.CompetitionID); err != nil {
+		return err
+	}
+
 	err = s.UpdateMatches(ctx, match.CompetitionID)
 	if err != nil && err != ErrNotEnoughPlayers {
 		return err
 	}
 	return nil
+}
+
+// UpdatePlayerScores updates win/lose scores for all players in last match
+func (s Service) UpdatePlayerScores(ctx context.Context, compID int64) error {
+	match, err := s.queries.GetLastMatch(ctx, compID)
+	if err != nil {
+		return err
+	}
+	rightScore, leftScore := *match.RightScore, *match.LeftScore
+
+	players, err := s.queries.ListMatchPlayers(ctx, match.ID)
+	if err != nil {
+		return err
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	qtx := s.queries.WithTx(tx)
+
+	for _, p := range players {
+		lastMatchPlayers, err := qtx.GetMatchPlayersToUpdateScore(ctx, sqlc.GetMatchPlayersToUpdateScoreParams{
+			PlayerID:      p.PlayerID,
+			CompetitionID: compID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(lastMatchPlayers) == 0 {
+			log.Printf("couldn't find last matches for player %d, comp %d", p.PlayerID, compID)
+			continue
+		}
+
+		// not sure about it
+		var win, lose int64
+		if p.Team && rightScore > leftScore {
+			win += rightScore
+			lose += leftScore
+		} else {
+			win += leftScore
+			lose += rightScore
+		}
+
+		if len(lastMatchPlayers) == 2 && lastMatchPlayers[1].WinScore != nil {
+			win += *lastMatchPlayers[1].WinScore
+			lose += *lastMatchPlayers[1].LoseScore
+		}
+
+		qtx.SetMatchPlayerWinLoseScores(ctx, sqlc.SetMatchPlayerWinLoseScoresParams{
+			PlayerID:  p.PlayerID,
+			MatchID:   p.MatchID,
+			WinScore:  &win,
+			LoseScore: &lose,
+		})
+	}
+
+	return tx.Commit()
 }
 
 func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) (*model.ListMatchesResponse, error) {
@@ -253,8 +320,10 @@ func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) 
 	for _, r := range matchPlayerRows {
 		m := matchesMap[r.MatchPlayer.MatchID]
 		p := model.MatchPlayer{
-			ID:   r.User.ID,
-			Name: r.User.FirstName + " " + r.User.LastName,
+			ID:        r.User.ID,
+			Name:      r.User.FirstName + " " + r.User.LastName,
+			WinScore:  r.MatchPlayer.WinScore,
+			LoseScore: r.MatchPlayer.LoseScore,
 		}
 		if r.MatchPlayer.Team == false {
 			m.LeftTeam = append(m.LeftTeam, p)

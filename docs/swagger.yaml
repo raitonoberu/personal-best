@@ -81,6 +81,15 @@ definitions:
       user:
         $ref: '#/definitions/model.GetUserResponse'
     type: object
+  model.CompetitionScore:
+    properties:
+      lose_score:
+        type: integer
+      user:
+        $ref: '#/definitions/model.GetUserResponse'
+      win_score:
+        type: integer
+    type: object
   model.CreateCompetitionRequest:
     properties:
       age:
@@ -246,8 +255,12 @@ definitions:
     properties:
       id:
         type: integer
+      lose_score:
+        type: integer
       name:
         type: string
+      win_score:
+        type: integer
     type: object
   model.PlayerRegistration:
     properties:
@@ -633,6 +646,29 @@ paths:
       summary: Register for competition
       tags:
       - registration
+  /api/competitions/{id}/scores:
+    get:
+      description: Get final scores for all competition players
+      parameters:
+      - description: competition id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CompetitionScore'
+            type: array
+      security:
+      - Bearer: []
+      summary: Get competition scores
+      tags:
+      - competition
   /api/documents:
     post:
       consumes:
