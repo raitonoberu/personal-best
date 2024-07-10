@@ -53,7 +53,7 @@ func (h Handler) AdminCreateUser(c echo.Context) error {
 		}
 	}
 
-	if missingPlayerFields != 0 && role.CanParticipate {
+	if missingPlayerFields != 0 && !role.CanCreate {
 		return ErrNotEnoughFields
 	}
 
