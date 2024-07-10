@@ -1,7 +1,0 @@
-{
-  "files.exclude": {
-    ".tmp": true,
-    ".db": true,
-    ".idea": true
-  }
-}

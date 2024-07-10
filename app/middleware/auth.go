@@ -6,8 +6,9 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	"github.com/raitonoberu/personal-best/app/handler"
 )
+
+var ErrNotAuthorized = echo.NewHTTPError(401, "Вы не авторизованы")
 
 var secret = os.Getenv("SECRET")
 
@@ -17,7 +18,7 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		userID := extractUserID(c)
 		if userID == int64(0) {
-			return handler.ErrNotAuthorized
+			return ErrNotAuthorized
 		}
 		c.Set("userID", userID)
 		return next(c)

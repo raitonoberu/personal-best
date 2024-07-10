@@ -341,12 +341,8 @@ definitions:
         type: string
       description:
         type: string
-      id:
-        type: integer
       name:
         type: string
-    required:
-    - id
     type: object
   model.UpdateMatchRequest:
     properties:

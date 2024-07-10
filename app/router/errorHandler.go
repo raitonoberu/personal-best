@@ -3,12 +3,16 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/raitonoberu/personal-best/app/handler"
 	"github.com/raitonoberu/personal-best/app/model"
 )
+
+func newValidationErr(fields []string) *echo.HTTPError {
+	return echo.NewHTTPError(400, fmt.Sprintf("Неправильно введены поля: %s", strings.Join(fields, ", ")))
+}
 
 func errorHandler(err error, c echo.Context) {
 	if ve, ok := err.(validator.ValidationErrors); ok {
@@ -16,7 +20,7 @@ func errorHandler(err error, c echo.Context) {
 		for i, v := range ve {
 			fields[i] = v.Field()
 		}
-		err = handler.NewValidationErr(fields)
+		err = newValidationErr(fields)
 	}
 
 	var code int

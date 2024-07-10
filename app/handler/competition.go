@@ -1,14 +1,10 @@
 package handler
 
 import (
-	"database/sql"
-	"errors"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
-	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
 // @Summary Create competition
@@ -32,75 +28,18 @@ func (h Handler) CreateCompetition(c echo.Context) error {
 		return err
 	}
 
-	closesAt := parseDate(req.ClosesAt)
-	for _, d := range req.Days {
-		day := parseDate(d.Date)
-		if day.Equal(closesAt) || day.Before(closesAt) {
-			return ErrStartBeforeClose
-		}
-
-		startTime := parseTime(d.StartTime, day)
-		endTime := parseTime(d.EndTime, day)
-
-		if startTime.After(endTime) {
-			return ErrEndBeforeStart
-		}
-	}
-
-	// TODO: here we need MUCH MORE CHECKS BITCH
-
-	tx, err := h.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	qtx := h.queries.WithTx(tx)
-
-	comp, err := qtx.CreateCompetition(c.Request().Context(),
-		sqlc.CreateCompetitionParams{
-			TrainerID:   getUserID(c),
-			Name:        req.Name,
-			Description: req.Description,
-			Tours:       req.Tours,
-			Age:         req.Age,
-			Size:        req.Size,
-			ClosesAt:    closesAt,
-		})
+	req.UserID = getUserID(c)
+	id, err := h.service.CreateCompetition(c.Request().Context(), req)
 	if err != nil {
 		return err
 	}
 
-	for _, d := range req.Days {
-		date := parseDate(d.Date)
-		_, err := qtx.CreateCompetitionDay(c.Request().Context(),
-			sqlc.CreateCompetitionDayParams{
-				CompetitionID: comp.ID,
-				Date:          date,
-				StartTime:     parseTime(d.StartTime, date),
-				EndTime:       parseTime(d.EndTime, date),
-			})
-		if err != nil {
-			return err
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	// TODO: make it in the SAME TRANSACTION
-	if err := h.service.GenerateMatches(c.Request().Context(), comp.ID); err != nil {
-		return err
-	}
-
-	return c.JSON(201, model.NewCreateCompetitionResponse(comp))
+	return c.JSON(201, model.CreateCompetitionResponse{ID: id})
 }
 
 // @Summary Get competition
 // @Security Bearer
 // @Description Return competition by ID
-// @Descripiton Not much yet :)
 // @Tags competition
 // @Produce json
 // @Param request path model.GetCompetitionRequest true "path"
@@ -112,17 +51,12 @@ func (h Handler) GetCompetition(c echo.Context) error {
 		return err
 	}
 
-	competition, err := h.queries.GetCompetition(c.Request().Context(), req.ID)
+	comp, err := h.service.GetCompetition(c.Request().Context(), req.ID)
 	if err != nil {
 		return err
 	}
 
-	days, err := h.queries.GetCompetitionDays(c.Request().Context(), req.ID)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(200, model.NewGetCompetitionResponse(competition, days))
+	return c.JSON(200, comp)
 }
 
 // @Summary List competition
@@ -140,46 +74,12 @@ func (h Handler) ListCompetitions(c echo.Context) error {
 		return err
 	}
 
-	competitions, err := h.queries.ListCompetitions(c.Request().Context(),
-		sqlc.ListCompetitionsParams(req))
+	resp, err := h.service.ListCompetitions(c.Request().Context(), req.Limit, req.Offset)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrCompetitionNotFound
-		}
 		return err
 	}
-	return c.JSON(200, model.NewListCompetitionsResponse(competitions))
-}
 
-// @Summary List player registrations
-// @Security Bearer
-// @Description List competitions where player is registered
-// @Tags registration
-// @Produce json
-// @Param user_id path int true "id of user"
-// @Param query query model.ListPlayerRegistrationsRequest true "query"
-// @Success 200 {object} model.ListPlayerRegistrationsResponse
-// @Router /api/users/{user_id}/registrations [get]
-func (h Handler) ListPlayerRegistrations(c echo.Context) error {
-	var req model.ListPlayerRegistrationsRequest
-	if err := c.Bind(&req); err != nil {
-		return err
-	}
-	id, _ := strconv.ParseInt(c.Param("user_id"), 10, 64)
-
-	rows, err := h.queries.ListPlayerRegistrations(c.Request().Context(),
-		sqlc.ListPlayerRegistrationsParams{
-			PlayerID: id,
-			Limit:    req.Limit,
-			Offset:   req.Offset,
-		})
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrCompetitionNotFound
-		}
-		return err
-	}
-	return c.JSON(200, model.NewListPlayerRegistrationsResponse(rows))
+	return c.JSON(200, resp)
 }
 
 // @Summary Update competition
@@ -199,24 +99,10 @@ func (h Handler) UpdateCompetition(c echo.Context) error {
 		return err
 	}
 
-	var closesAt *time.Time
-	if req.ClosesAt != nil {
-		date := parseDate(*req.ClosesAt)
-		closesAt = &date
-
-		// TODO: check if it's not after first match and not in past
-	}
-
-	err := h.queries.UpdateCompetition(c.Request().Context(),
-		sqlc.UpdateCompetitionParams{
-			ID:          req.ID,
-			Name:        req.Name,
-			Description: req.Description,
-			ClosesAt:    closesAt,
-		})
-	if err != nil {
+	if err := h.service.UpdateCompetition(c.Request().Context(), req); err != nil {
 		return err
 	}
+
 	return c.NoContent(204)
 }
 
@@ -236,9 +122,10 @@ func (h Handler) DeleteCompetition(c echo.Context) error {
 		return err
 	}
 
-	if err := h.queries.DeleteCompetition(c.Request().Context(), req.ID); err != nil {
+	if err := h.service.DeleteCompetition(c.Request().Context(), req.ID); err != nil {
 		return err
 	}
+
 	return c.NoContent(204)
 }
 
@@ -257,5 +144,6 @@ func (h Handler) ListScores(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	return c.JSON(200, scores)
 }

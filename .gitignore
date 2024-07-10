@@ -1,5 +1,8 @@
+.vscode
 .idea
 .tmp
 .db
 .data
 .env
+*.hurl
+*.py

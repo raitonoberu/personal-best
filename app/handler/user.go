@@ -1,14 +1,8 @@
 package handler
 
 import (
-	"database/sql"
-	"errors"
-	"time"
-
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
-	"github.com/raitonoberu/personal-best/db/sqlc"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // @Summary Get user
@@ -27,14 +21,11 @@ func (h Handler) GetUser(c echo.Context) error {
 		return err
 	}
 
-	userRow, err := h.queries.GetUser(c.Request().Context(), req.ID)
+	user, err := h.service.GetUser(c.Request().Context(), req.ID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrUserNotFound
-		}
 		return err
 	}
-	return c.JSON(200, model.NewGetUserResponse(userRow))
+	return c.JSON(200, user)
 }
 
 // @Summary Update user
@@ -51,57 +42,8 @@ func (h Handler) UpdateUser(c echo.Context) error {
 		return err
 	}
 
-	if req.Password != nil {
-		hash, err := bcrypt.GenerateFromPassword(
-			[]byte(*req.Password), bcrypt.DefaultCost,
-		)
-		if err != nil {
-			return err
-		}
-		hashStr := string(hash)
-		req.Password = &hashStr
-	}
-
-	tx, err := h.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	qtx := h.queries.WithTx(tx)
-
-	if err := qtx.UpdateUser(c.Request().Context(),
-		sqlc.UpdateUserParams{
-			ID:         getUserID(c),
-			Email:      req.Email,
-			Password:   req.Password,
-			FirstName:  req.FirstName,
-			MiddleName: req.MiddleName,
-			LastName:   req.LastName,
-		},
-	); err != nil {
-		return err
-	}
-
-	var birthDate *time.Time
-	if req.BirthDate != nil {
-		date := parseDate(*req.BirthDate)
-		birthDate = &date
-	}
-
-	if err := qtx.UpdatePlayer(c.Request().Context(),
-		sqlc.UpdatePlayerParams{
-			UserID:    getUserID(c),
-			BirthDate: birthDate,
-			IsMale:    req.IsMale,
-			Phone:     req.Phone,
-			Telegram:  req.Telegram,
-		},
-	); err != nil {
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
+	req.ID = getUserID(c)
+	if err := h.service.UpdateUser(c.Request().Context(), req); err != nil {
 		return err
 	}
 	return c.NoContent(204)
@@ -114,10 +56,7 @@ func (h Handler) UpdateUser(c echo.Context) error {
 // @Success 204
 // @Router /api/users [delete]
 func (h Handler) DeleteUser(c echo.Context) error {
-	if err := h.queries.DeleteUser(c.Request().Context(), getUserID(c)); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrUserNotFound
-		}
+	if err := h.service.DeleteUser(c.Request().Context(), getUserID(c)); err != nil {
 		return err
 	}
 	return c.NoContent(204)

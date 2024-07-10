@@ -16,6 +16,11 @@ var allowedContentTypes = []string{
 	"application/pdf",
 }
 
+var (
+	ErrFileTooBig      = echo.NewHTTPError(400, "Файл слишком большой")
+	ErrFileUnsupported = echo.NewHTTPError(400, "Файл имеет неподдерживаемый формат")
+)
+
 // @Summary Save document
 // @Security Bearer
 // @Description Save player document. Max file size is 10MB

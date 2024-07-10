@@ -22,10 +22,3 @@ type AuthResponse struct {
 	ID    int64  `json:"id"`
 	Token string `json:"token"`
 }
-
-func NewAuthResponse(id int64, token string) AuthResponse {
-	return AuthResponse{
-		ID:    id,
-		Token: token,
-	}
-}

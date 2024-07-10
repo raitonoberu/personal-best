@@ -1,14 +1,10 @@
 package handler
 
 import (
-	"database/sql"
-	"errors"
-	"time"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
-	"github.com/raitonoberu/personal-best/app/service"
-	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
 // @Summary List competition registrations
@@ -17,7 +13,7 @@ import (
 // @Tags registration
 // @Produce json
 // @Param request path model.ListCompetitionRegistrationsRequest true "path"
-// @Success 200 {object} model.ListCompetitionRegistrationsResponse
+// @Success 200 {object} []model.CompetitionRegistration
 // @Router /api/competitions/{id}/registrations [get]
 func (h Handler) ListCompetitionRegistrations(c echo.Context) error {
 	var req model.ListCompetitionRegistrationsRequest
@@ -25,15 +21,36 @@ func (h Handler) ListCompetitionRegistrations(c echo.Context) error {
 		return err
 	}
 
-	rows, err := h.queries.ListCompetitionRegistrations(c.Request().Context(), req.ID)
+	regs, err := h.service.ListCompetitionRegistrations(c.Request().Context(), req.ID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrCompetitionNotFound
-		}
 		return err
 	}
 
-	return c.JSON(200, model.NewListCompetitionRegistrationsResponse(rows))
+	return c.JSON(200, regs)
+}
+
+// @Summary List player registrations
+// @Security Bearer
+// @Description List competitions where player is registered
+// @Tags registration
+// @Produce json
+// @Param user_id path int true "id of user"
+// @Param query query model.ListPlayerRegistrationsRequest true "query"
+// @Success 200 {object} model.ListPlayerRegistrationsResponse
+// @Router /api/users/{user_id}/registrations [get]
+func (h Handler) ListPlayerRegistrations(c echo.Context) error {
+	var req model.ListPlayerRegistrationsRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	id, _ := strconv.ParseInt(c.Param("user_id"), 10, 64)
+
+	regs, err := h.service.ListPlayerRegistrations(c.Request().Context(), id, req.Limit, req.Offset)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(200, regs)
 }
 
 // @Summary Register for competition
@@ -53,32 +70,8 @@ func (h Handler) RegisterForCompetition(c echo.Context) error {
 		return err
 	}
 
-	competition, err := h.queries.GetCompetition(c.Request().Context(), req.ID)
+	err := h.service.RegisterForCompetition(c.Request().Context(), getUserID(c), req.ID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrCompetitionNotFound
-		}
-		return err
-	}
-
-	// here we add 24h cuz stored ClosesAt is the last day available to register
-	if competition.Competition.ClosesAt.Add(time.Hour * 24).Before(time.Now()) {
-		return ErrCompetitionClosed
-	}
-
-	if err := h.queries.CreateRegistration(c.Request().Context(),
-		sqlc.CreateRegistrationParams{
-			CompetitionID: req.ID,
-			PlayerID:      getUserID(c),
-			IsApproved:    false,
-			IsDropped:     false,
-		}); err != nil {
-		return err
-	}
-
-	if err := h.service.UpdateMatches(c.Request().Context(), req.ID); err != nil &&
-		err != service.ErrNotEnoughPlayers {
-		// ignoring if not enough players
 		return err
 	}
 
@@ -102,43 +95,8 @@ func (h Handler) UnregisterForCompetition(c echo.Context) error {
 		return err
 	}
 
-	competition, err := h.queries.GetCompetition(c.Request().Context(), req.ID)
+	err := h.service.UnregisterForCompetition(c.Request().Context(), getUserID(c), req.ID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrCompetitionNotFound
-		}
-		return err
-	}
-
-	// here we add 24h cuz stored ClosesAt is the last day available to register
-	if competition.Competition.ClosesAt.Add(time.Hour * 24).Before(time.Now()) {
-		return ErrCompetitionClosed
-	}
-
-	reg, err := h.queries.GetRegistration(c.Request().Context(),
-		sqlc.GetRegistrationParams{
-			CompetitionID: req.ID,
-			PlayerID:      getUserID(c),
-		})
-	if err != nil {
-		return err
-	}
-	if reg.IsDropped {
-		return ErrPlayerDropped
-	}
-
-	if err := h.queries.DeleteRegistration(c.Request().Context(),
-		sqlc.DeleteRegistrationParams{
-			CompetitionID: req.ID,
-			PlayerID:      getUserID(c),
-		}); err != nil {
-		return err
-	}
-
-	if err := h.service.UpdateMatches(c.Request().Context(), req.ID); err != nil &&
-		err != service.ErrNotEnoughPlayers {
-		// ignoring if not enough players
-		// TODO: Here we actually should not xD
 		return err
 	}
 

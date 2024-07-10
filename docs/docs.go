@@ -1468,18 +1468,12 @@ const docTemplate = `{
         },
         "model.UpdateCompetitionRequest": {
             "type": "object",
-            "required": [
-                "id"
-            ],
             "properties": {
                 "closes_at": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

@@ -4,9 +4,10 @@ import (
 	"log"
 
 	"github.com/labstack/echo/v4"
-	"github.com/raitonoberu/personal-best/app/model"
 	"github.com/raitonoberu/personal-best/db/sqlc"
 )
+
+var ErrAccessDenied = echo.NewHTTPError(403, "Недостаточно прав")
 
 // @Summary List roles
 // @Security Bearer
@@ -16,28 +17,22 @@ import (
 // @Success 200 {object} []model.RoleResponse
 // @Router /api/roles [get]
 func (h Handler) ListRoles(c echo.Context) error {
-	roles, err := h.queries.ListRoles(c.Request().Context())
+	roles, err := h.service.ListRoles(c.Request().Context())
 	if err != nil {
 		return err
 	}
-
-	resp := make([]model.RoleResponse, len(roles))
-	for i, r := range roles {
-		resp[i] = model.RoleResponse(r)
-	}
-
-	return c.JSON(200, resp)
+	return c.JSON(200, roles)
 }
 
-func (h Handler) getUserRole(c echo.Context) sqlc.Role {
+func (h Handler) getUserRole(c echo.Context) *sqlc.Role {
 	if r := c.Get("role"); r != nil {
-		return r.(sqlc.Role)
+		return r.(*sqlc.Role)
 	}
 
-	role, err := h.queries.GetUserRole(c.Request().Context(),
-		getUserID(c))
+	role, err := h.service.GetUserRole(c.Request().Context(), getUserID(c))
 	if err != nil {
 		log.Printf("[ERROR] Couldn't get role for user %d: %s", getUserID(c), err)
+		return nil
 	}
 	c.Set("role", role)
 	return role

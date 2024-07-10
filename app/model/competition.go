@@ -11,6 +11,7 @@ type CompetitionDay struct {
 }
 
 type CreateCompetitionRequest struct {
+	UserID      int64  `json:"-"`
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Tours       int64  `json:"tours" validate:"required"`
@@ -23,12 +24,6 @@ type CreateCompetitionRequest struct {
 
 type CreateCompetitionResponse struct {
 	ID int64 `json:"id"`
-}
-
-func NewCreateCompetitionResponse(c sqlc.Competition) CreateCompetitionResponse {
-	return CreateCompetitionResponse{
-		ID: c.ID,
-	}
 }
 
 type GetCompetitionRequest struct {
@@ -88,33 +83,11 @@ type ListCompetitionsResponse struct {
 	Competitions []GetCompetitionResponse `json:"competitions"`
 }
 
-func NewListCompetitionsResponse(rows []sqlc.ListCompetitionsRow) ListCompetitionsResponse {
-	competitions := make([]GetCompetitionResponse, len(rows))
-	for i, row := range rows {
-		competitions[i] = NewGetCompetitionResponse(
-			sqlc.GetCompetitionRow{
-				Competition: row.Competition,
-				User:        row.User,
-			}, nil) // TODO:
-	}
-
-	var total int
-	if len(rows) > 0 {
-		total = int(rows[0].Total)
-	}
-
-	return ListCompetitionsResponse{
-		Count:        len(rows),
-		Total:        total,
-		Competitions: competitions,
-	}
-}
-
 type UpdateCompetitionRequest struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
-	ClosesAt    *string `json:"closes_at" validate:"date"`
-	ID          int64   `param:"id" validate:"required"`
+	ClosesAt    *string `json:"closes_at" validate:"omitempty,date"`
+	ID          int64   `json:"-" param:"id" validate:"required"`
 }
 
 type DeleteCompetitionRequest struct {
@@ -142,48 +115,10 @@ type ListPlayerRegistrationsRequest struct {
 	Offset int64 `query:"offset" validate:"gte=0"`
 }
 
-type ListCompetitionRegistrationsResponse []CompetitionRegistration
-
-func NewListCompetitionRegistrationsResponse(rows []sqlc.ListCompetitionRegistrationsRow) ListCompetitionRegistrationsResponse {
-	regs := make([]CompetitionRegistration, len(rows))
-	for i := 0; i < len(rows); i++ {
-		regs[i] = CompetitionRegistration{
-			IsApproved: rows[i].Registration.IsApproved,
-			IsDropped:  rows[i].Registration.IsDropped,
-			User:       NewGetPlayerResponse(rows[i].User, rows[i].Player),
-		}
-	}
-	return regs
-}
-
 type ListPlayerRegistrationsResponse struct {
 	Count         int                  `json:"count"`
 	Total         int                  `json:"total"`
 	Registrations []PlayerRegistration `json:"registrations"`
-}
-
-func NewListPlayerRegistrationsResponse(rows []sqlc.ListPlayerRegistrationsRow) ListPlayerRegistrationsResponse {
-	regs := make([]PlayerRegistration, len(rows))
-	for i := 0; i < len(rows); i++ {
-		regs[i] = PlayerRegistration{
-			IsApproved: rows[i].Registration.IsApproved,
-			IsDropped:  rows[i].Registration.IsDropped,
-			Competition: NewGetCompetitionResponse(sqlc.GetCompetitionRow{
-				Competition: rows[i].Competition,
-				User:        rows[i].User,
-			}, nil),
-		}
-	}
-	var total int
-	if len(rows) > 0 {
-		total = int(rows[0].Total)
-	}
-
-	return ListPlayerRegistrationsResponse{
-		Count:         len(rows),
-		Total:         total,
-		Registrations: regs,
-	}
 }
 
 type RegisterForCompetitionRequest struct {
