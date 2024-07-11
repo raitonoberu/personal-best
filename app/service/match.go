@@ -325,10 +325,10 @@ func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) 
 			WinScore:  r.MatchPlayer.WinScore,
 			LoseScore: r.MatchPlayer.LoseScore,
 		}
-		if r.MatchPlayer.Team == false {
-			m.LeftTeam = append(m.LeftTeam, p)
-		} else {
+		if r.MatchPlayer.Team {
 			m.RightTeam = append(m.RightTeam, p)
+		} else {
+			m.LeftTeam = append(m.LeftTeam, p)
 		}
 		matchesMap[r.MatchPlayer.MatchID] = m
 	}

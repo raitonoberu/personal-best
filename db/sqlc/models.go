@@ -59,8 +59,8 @@ type Player struct {
 	IsMale      bool
 	Phone       string
 	Telegram    string
-	Preparation *string
-	Position    *string
+	Preparation string
+	Position    string
 }
 
 type Registration struct {

@@ -7,9 +7,9 @@ RETURNING *;
 
 -- name: CreatePlayer :one
 INSERT INTO
-    players (user_id, birth_date, is_male, phone, telegram)
+    players (user_id, birth_date, is_male, phone, telegram, preparation, position)
 VALUES
-    (?, ?, ?, ?, ?)
+    (?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: GetUser :one
@@ -54,7 +54,9 @@ SET
     birth_date = coalesce(sqlc.narg('birth_date'), birth_date),
     is_male = coalesce(sqlc.narg('is_male'), is_male),
     phone = coalesce(sqlc.narg('phone'), phone),
-    telegram = coalesce(sqlc.narg('telegram'), telegram)
+    telegram = coalesce(sqlc.narg('telegram'), telegram),
+    preparation = coalesce(sqlc.narg('preparation'), preparation),
+    position = coalesce(sqlc.narg('position'), position)
 WHERE
     user_id = sqlc.arg('user_id');
 

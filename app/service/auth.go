@@ -43,11 +43,13 @@ func (s Service) Register(ctx context.Context, req model.RegisterRequest) (*mode
 
 	_, err = qtx.CreatePlayer(ctx,
 		sqlc.CreatePlayerParams{
-			UserID:    user.ID,
-			IsMale:    *req.IsMale,
-			Phone:     req.Phone,
-			Telegram:  req.Telegram,
-			BirthDate: parseDate(req.BirthDate),
+			UserID:      user.ID,
+			IsMale:      *req.IsMale,
+			Phone:       req.Phone,
+			Telegram:    req.Telegram,
+			BirthDate:   parseDate(req.BirthDate),
+			Preparation: req.Preparation,
+			Position:    req.Position,
 		},
 	)
 	if err != nil {

@@ -1,5 +1,4 @@
 export DATABASE_URL := sqlite:.db/db.sqlite
-export DBMATE_NO_DUMP_SCHEMA := true
 
 .PHONY: all
 

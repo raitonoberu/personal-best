@@ -14,8 +14,8 @@ type PlayerResponse struct {
 	Phone     string `json:"phone"`
 	Telegram  string `json:"telegram"`
 
-	Preparation *string `json:"preparation,omitempty"`
-	Position    *string `json:"position,omitempty"`
+	Preparation string `json:"preparation"`
+	Position    string `json:"position"`
 }
 
 type ListUsersResponse struct {
@@ -43,8 +43,8 @@ func NewGetUserResponse(row sqlc.GetUserRow) GetUserResponse {
 			IsMale:      *row.UserPlayer.IsMale,
 			Phone:       *row.UserPlayer.Phone,
 			Telegram:    *row.UserPlayer.Telegram,
-			Preparation: row.UserPlayer.Preparation,
-			Position:    row.UserPlayer.Position,
+			Preparation: *row.UserPlayer.Preparation,
+			Position:    *row.UserPlayer.Position,
 		}
 	}
 
@@ -88,6 +88,8 @@ type UpdateUserRequest struct {
 	Email    *string `json:"email" validate:"omitempty,email"`
 	Password *string `json:"password"`
 
-	Phone    *string `json:"phone" validate:"omitempty,e164"`
-	Telegram *string `json:"telegram" validate:"omitempty,startswith=@"`
+	Phone       *string `json:"phone" validate:"omitempty,e164"`
+	Telegram    *string `json:"telegram" validate:"omitempty,startswith=@"`
+	Preparation *string `json:"preparation"` // TODO: limit to options
+	Position    *string `json:"position"`    // TODO: limit to options
 }

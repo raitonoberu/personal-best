@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/raitonoberu/personal-best/app/model"
@@ -58,9 +57,11 @@ func (s Service) UpdateUser(ctx context.Context, req model.UpdateUserRequest) er
 
 	if err := qtx.UpdatePlayer(ctx,
 		sqlc.UpdatePlayerParams{
-			UserID:   req.ID,
-			Phone:    req.Phone,
-			Telegram: req.Telegram,
+			UserID:      req.ID,
+			Phone:       req.Phone,
+			Telegram:    req.Telegram,
+			Preparation: req.Preparation,
+			Position:    req.Position,
 		},
 	); err != nil {
 		return err

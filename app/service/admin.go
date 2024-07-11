@@ -24,6 +24,8 @@ func (s Service) CreateUser(ctx context.Context, req model.AdminCreateUserReques
 		req.IsMale,
 		req.Phone,
 		req.Telegram,
+		req.Position,
+		req.Preparation,
 	}
 
 	missingPlayerFields := 0
@@ -69,11 +71,13 @@ func (s Service) CreateUser(ctx context.Context, req model.AdminCreateUserReques
 		// creating player
 		_, err = qtx.CreatePlayer(ctx,
 			sqlc.CreatePlayerParams{
-				UserID:    user.ID,
-				IsMale:    *req.IsMale,
-				Phone:     *req.Phone,
-				Telegram:  *req.Telegram,
-				BirthDate: parseDate(*req.BirthDate),
+				UserID:      user.ID,
+				IsMale:      *req.IsMale,
+				Phone:       *req.Phone,
+				Telegram:    *req.Telegram,
+				BirthDate:   parseDate(*req.BirthDate),
+				Preparation: *req.Preparation,
+				Position:    *req.Position,
 			},
 		)
 		if err != nil {
@@ -143,11 +147,13 @@ func (s Service) AdminUpdateUser(ctx context.Context, req model.AdminUpdateUserR
 
 	if err := qtx.UpdatePlayer(ctx,
 		sqlc.UpdatePlayerParams{
-			UserID:    req.ID,
-			BirthDate: birthDate,
-			IsMale:    req.IsMale,
-			Phone:     req.Phone,
-			Telegram:  req.Telegram,
+			UserID:      req.ID,
+			BirthDate:   birthDate,
+			IsMale:      req.IsMale,
+			Phone:       req.Phone,
+			Telegram:    req.Telegram,
+			Preparation: req.Preparation,
+			Position:    req.Position,
 		},
 	); err != nil {
 		return err

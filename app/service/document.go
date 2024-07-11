@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/url"
 	"os"
@@ -10,15 +9,20 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"github.com/minio/minio-go/v7"
 	"github.com/raitonoberu/personal-best/app/model"
 	"github.com/raitonoberu/personal-best/db/sqlc"
 )
 
-const documentExpirationOffset = time.Hour * 24 * 14
-const documentLinkLifetime = time.Hour * 3
+const (
+	documentExpirationOffset = time.Hour * 24 * 14
+	documentLinkLifetime     = time.Hour * 3
+)
 
 var documentBucket = os.Getenv("DOCUMENT_BUCKET")
+
+var DocumentAccessDeniedErr = echo.NewHTTPError(400, "Нет прав на просмотр документа")
 
 func (s Service) SaveDocument(ctx context.Context, userID int64, reader io.Reader, name string, size int64, contentType string) error {
 	filename := uuid.New().String()
@@ -74,7 +78,7 @@ func (s Service) GetDocument(ctx context.Context, id, userID int64, admin bool) 
 		return "", err
 	}
 	if record.PlayerID != userID && !admin {
-		return "", errors.New("Нет прав на просмотр документа")
+		return "", DocumentAccessDeniedErr
 	}
 
 	url, err := s.s3.PresignedGetObject(ctx, documentBucket, record.Url, documentLinkLifetime, url.Values{})
@@ -90,7 +94,7 @@ func (s Service) DeleteDocument(ctx context.Context, id, userID int64, admin boo
 		return err
 	}
 	if record.PlayerID != userID && !admin {
-		return errors.New("Нет прав на удаление документа")
+		return DocumentAccessDeniedErr
 	}
 
 	err = s.queries.DeleteDocument(ctx, id)

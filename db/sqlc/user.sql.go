@@ -12,18 +12,20 @@ import (
 
 const createPlayer = `-- name: CreatePlayer :one
 INSERT INTO
-    players (user_id, birth_date, is_male, phone, telegram)
+    players (user_id, birth_date, is_male, phone, telegram, preparation, position)
 VALUES
-    (?, ?, ?, ?, ?)
+    (?, ?, ?, ?, ?, ?, ?)
 RETURNING user_id, birth_date, is_male, phone, telegram, preparation, position
 `
 
 type CreatePlayerParams struct {
-	UserID    int64
-	BirthDate time.Time
-	IsMale    bool
-	Phone     string
-	Telegram  string
+	UserID      int64
+	BirthDate   time.Time
+	IsMale      bool
+	Phone       string
+	Telegram    string
+	Preparation string
+	Position    string
 }
 
 func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error) {
@@ -33,6 +35,8 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 		arg.IsMale,
 		arg.Phone,
 		arg.Telegram,
+		arg.Preparation,
+		arg.Position,
 	)
 	var i Player
 	err := row.Scan(
@@ -240,17 +244,21 @@ SET
     birth_date = coalesce(?1, birth_date),
     is_male = coalesce(?2, is_male),
     phone = coalesce(?3, phone),
-    telegram = coalesce(?4, telegram)
+    telegram = coalesce(?4, telegram),
+    preparation = coalesce(?5, preparation),
+    position = coalesce(?6, position)
 WHERE
-    user_id = ?5
+    user_id = ?7
 `
 
 type UpdatePlayerParams struct {
-	BirthDate *time.Time
-	IsMale    *bool
-	Phone     *string
-	Telegram  *string
-	UserID    int64
+	BirthDate   *time.Time
+	IsMale      *bool
+	Phone       *string
+	Telegram    *string
+	Preparation *string
+	Position    *string
+	UserID      int64
 }
 
 func (q *Queries) UpdatePlayer(ctx context.Context, arg UpdatePlayerParams) error {
@@ -259,6 +267,8 @@ func (q *Queries) UpdatePlayer(ctx context.Context, arg UpdatePlayerParams) erro
 		arg.IsMale,
 		arg.Phone,
 		arg.Telegram,
+		arg.Preparation,
+		arg.Position,
 		arg.UserID,
 	)
 	return err

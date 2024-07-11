@@ -997,6 +997,12 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
+                "preparation": {
+                    "type": "string"
+                },
                 "role_id": {
                     "type": "integer"
                 },
@@ -1030,6 +1036,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "preparation": {
                     "type": "string"
                 },
                 "role_id": {
@@ -1434,6 +1446,14 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
+                "position": {
+                    "description": "TODO: limit to options",
+                    "type": "string"
+                },
+                "preparation": {
+                    "description": "TODO: limit to options",
+                    "type": "string"
+                },
                 "telegram": {
                     "description": "TODO: more validations",
                     "type": "string"
@@ -1505,28 +1525,21 @@ const docTemplate = `{
         "model.UpdateUserRequest": {
             "type": "object",
             "properties": {
-                "birth_date": {
-                    "type": "string"
-                },
                 "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "is_male": {
-                    "type": "boolean"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "middle_name": {
                     "type": "string"
                 },
                 "password": {
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "position": {
+                    "description": "TODO: limit to options",
+                    "type": "string"
+                },
+                "preparation": {
+                    "description": "TODO: limit to options",
                     "type": "string"
                 },
                 "telegram": {

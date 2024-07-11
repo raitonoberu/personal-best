@@ -8,10 +8,12 @@ type AdminCreateUserRequest struct {
 	LastName   string `json:"last_name" validate:"required"`
 	MiddleName string `json:"middle_name" validate:"required"`
 
-	BirthDate *string `json:"birth_date" validate:"omitempty,date"`
-	IsMale    *bool   `json:"is_male"`
-	Phone     *string `json:"phone" validate:"omitempty,e164"`
-	Telegram  *string `json:"telegram" validate:"omitempty,startswith=@"`
+	BirthDate   *string `json:"birth_date" validate:"omitempty,date"`
+	IsMale      *bool   `json:"is_male"`
+	Phone       *string `json:"phone" validate:"omitempty,e164"`
+	Telegram    *string `json:"telegram" validate:"omitempty,startswith=@"`
+	Preparation *string `json:"preparation"`
+	Position    *string `json:"position"`
 }
 
 type AdminListUsersRequest struct {
@@ -29,10 +31,12 @@ type AdminUpdateUserRequest struct {
 	LastName   *string `json:"last_name"`
 	MiddleName *string `json:"middle_name"`
 
-	BirthDate *string `json:"birth_date" validate:"omitempty,date"`
-	IsMale    *bool   `json:"is_male"`
-	Phone     *string `json:"phone" validate:"omitempty,e164"`
-	Telegram  *string `json:"telegram" validate:"omitempty,startswith=@"`
+	BirthDate   *string `json:"birth_date" validate:"omitempty,date"`
+	IsMale      *bool   `json:"is_male"`
+	Phone       *string `json:"phone" validate:"omitempty,e164"`
+	Telegram    *string `json:"telegram" validate:"omitempty,startswith=@"`
+	Preparation *string `json:"preparation"`
+	Position    *string `json:"position"`
 }
 
 type AdminDeleteUserRequest struct {
