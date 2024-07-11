@@ -67,7 +67,7 @@ func (s Service) CreateUser(ctx context.Context, req model.AdminCreateUserReques
 		return nil, err
 	}
 
-	if role.CanParticipate {
+	if !role.CanCreate {
 		// creating player
 		_, err = qtx.CreatePlayer(ctx,
 			sqlc.CreatePlayerParams{
