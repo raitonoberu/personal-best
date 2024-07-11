@@ -12,9 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	ErrUserNotFound = echo.NewHTTPError(404, "Пользователь не найден")
-)
+var ErrUserNotFound = echo.NewHTTPError(404, "Пользователь не найден")
 
 func (s Service) GetUser(ctx context.Context, id int64) (*model.GetUserResponse, error) {
 	userRow, err := s.queries.GetUser(ctx, id)
@@ -50,30 +48,19 @@ func (s Service) UpdateUser(ctx context.Context, req model.UpdateUserRequest) er
 
 	if err := qtx.UpdateUser(ctx,
 		sqlc.UpdateUserParams{
-			ID:         req.ID,
-			Email:      req.Email,
-			Password:   req.Password,
-			FirstName:  req.FirstName,
-			MiddleName: req.MiddleName,
-			LastName:   req.LastName,
+			ID:       req.ID,
+			Email:    req.Email,
+			Password: req.Password,
 		},
 	); err != nil {
 		return err
 	}
 
-	var birthDate *time.Time
-	if req.BirthDate != nil {
-		date := parseDate(*req.BirthDate)
-		birthDate = &date
-	}
-
 	if err := qtx.UpdatePlayer(ctx,
 		sqlc.UpdatePlayerParams{
-			UserID:    req.ID,
-			BirthDate: birthDate,
-			IsMale:    req.IsMale,
-			Phone:     req.Phone,
-			Telegram:  req.Telegram,
+			UserID:   req.ID,
+			Phone:    req.Phone,
+			Telegram: req.Telegram,
 		},
 	); err != nil {
 		return err
