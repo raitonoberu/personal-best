@@ -47,6 +47,29 @@ ORDER BY
 LIMIT
     ? OFFSET ?;
 
+-- name: ListMatchesByPlayer :many
+SELECT
+    matches.id,
+    matches.competition_id,
+    match_players.team,
+    competitions.name,
+    matches.start_time,
+    matches.left_score,
+    matches.right_score,
+    COUNT() OVER() as total
+FROM
+    match_players
+JOIN
+    matches ON match_players.match_id = matches.id
+JOIN
+    competitions ON competitions.id = matches.competition_id
+WHERE
+    match_players.player_id = ?
+ORDER BY
+    start_time DESC
+LIMIT
+    ? OFFSET ?;
+
 -- name: ListAllMatches :many
 SELECT
     *

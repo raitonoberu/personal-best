@@ -36,3 +36,20 @@ type UpdateMatchRequest struct {
 	LeftScore     int64 `json:"left_score"`
 	RightScore    int64 `json:"right_score"`
 }
+
+type ListPlayerMatchesResponse struct {
+	Count   int           `json:"count"`
+	Total   int           `json:"total"`
+	Matches []PlayerMatch `json:"matches"`
+}
+
+type PlayerMatch struct {
+	ID            int64     `json:"id"`
+	CompetitionID int64     `json:"competition_id"`
+	Name          string    `json:"name"`
+	Team          bool      `json:"team"`
+	StartTime     time.Time `json:"start_time"`
+	LeftScore     *int64    `json:"left_score"`
+	RightScore    *int64    `json:"right_score"`
+	// Position string `json:"position"` // TODO: do we need this??
+}

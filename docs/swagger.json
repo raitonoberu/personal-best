@@ -867,6 +867,54 @@
                 }
             }
         },
+        "/api/users/{id}/matches": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "List all matches with player (from new to old)\nIf score is null, match has not been played yet.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "match"
+                ],
+                "summary": "List player matches",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "player id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ListPlayerMatchesResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{user_id}/documents": {
             "get": {
                 "security": [
@@ -1268,6 +1316,23 @@
                 }
             }
         },
+        "model.ListPlayerMatchesResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PlayerMatch"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.ListPlayerRegistrationsResponse": {
             "type": "object",
             "properties": {
@@ -1360,6 +1425,32 @@
                 },
                 "win_score": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.PlayerMatch": {
+            "type": "object",
+            "properties": {
+                "competition_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "left_score": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "right_score": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "team": {
+                    "type": "boolean"
                 }
             }
         },

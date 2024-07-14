@@ -284,7 +284,7 @@ func (s Service) UpdatePlayerScores(ctx context.Context, compID int64) error {
 	return tx.Commit()
 }
 
-func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) (*model.ListMatchesResponse, error) {
+func (s Service) ListCompetitionMatches(ctx context.Context, req model.ListMatchesRequest) (*model.ListMatchesResponse, error) {
 	matches, err := s.queries.ListMatches(ctx, sqlc.ListMatchesParams{
 		CompetitionID: req.ID,
 		Limit:         req.Limit,
@@ -344,6 +344,41 @@ func (s Service) ListMatches(ctx context.Context, req model.ListMatchesRequest) 
 	}
 
 	return &model.ListMatchesResponse{
+		Count:   len(items),
+		Total:   total,
+		Matches: items,
+	}, nil
+}
+
+func (s Service) ListPlayerMatches(ctx context.Context, req model.ListMatchesRequest) (*model.ListPlayerMatchesResponse, error) {
+	matches, err := s.queries.ListMatchesByPlayer(ctx, sqlc.ListMatchesByPlayerParams{
+		PlayerID: req.ID,
+		Limit:    req.Limit,
+		Offset:   req.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]model.PlayerMatch, len(matches))
+	for i, m := range matches {
+		items[i] = model.PlayerMatch{
+			ID:            m.ID,
+			CompetitionID: m.CompetitionID,
+			Team:          m.Team,
+			Name:          m.Name,
+			StartTime:     m.StartTime,
+			LeftScore:     m.LeftScore,
+			RightScore:    m.RightScore,
+		}
+	}
+
+	var total int
+	if len(items) != 0 {
+		total = int(matches[0].Total)
+	}
+
+	return &model.ListPlayerMatchesResponse{
 		Count:   len(items),
 		Total:   total,
 		Matches: items,

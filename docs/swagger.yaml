@@ -208,6 +208,17 @@ definitions:
       total:
         type: integer
     type: object
+  model.ListPlayerMatchesResponse:
+    properties:
+      count:
+        type: integer
+      matches:
+        items:
+          $ref: '#/definitions/model.PlayerMatch'
+        type: array
+      total:
+        type: integer
+    type: object
   model.ListPlayerRegistrationsResponse:
     properties:
       count:
@@ -269,6 +280,23 @@ definitions:
         type: string
       win_score:
         type: integer
+    type: object
+  model.PlayerMatch:
+    properties:
+      competition_id:
+        type: integer
+      id:
+        type: integer
+      left_score:
+        type: integer
+      name:
+        type: string
+      right_score:
+        type: integer
+      start_time:
+        type: string
+      team:
+        type: boolean
     type: object
   model.PlayerRegistration:
     properties:
@@ -962,6 +990,39 @@ paths:
       summary: Update user
       tags:
       - admin
+  /api/users/{id}/matches:
+    get:
+      description: |-
+        List all matches with player (from new to old)
+        If score is null, match has not been played yet.
+      parameters:
+      - description: player id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListPlayerMatchesResponse'
+      security:
+      - Bearer: []
+      summary: List player matches
+      tags:
+      - match
   /api/users/{user_id}/documents:
     get:
       description: List documents of player

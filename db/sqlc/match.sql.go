@@ -209,6 +209,79 @@ func (q *Queries) ListMatches(ctx context.Context, arg ListMatchesParams) ([]Lis
 	return items, nil
 }
 
+const listMatchesByPlayer = `-- name: ListMatchesByPlayer :many
+SELECT
+    matches.id,
+    matches.competition_id,
+    match_players.team,
+    competitions.name,
+    matches.start_time,
+    matches.left_score,
+    matches.right_score,
+    COUNT() OVER() as total
+FROM
+    match_players
+JOIN
+    matches ON match_players.match_id = matches.id
+JOIN
+    competitions ON competitions.id = matches.competition_id
+WHERE
+    match_players.player_id = ?
+ORDER BY
+    start_time DESC
+LIMIT
+    ? OFFSET ?
+`
+
+type ListMatchesByPlayerParams struct {
+	PlayerID int64
+	Limit    int64
+	Offset   int64
+}
+
+type ListMatchesByPlayerRow struct {
+	ID            int64
+	CompetitionID int64
+	Team          bool
+	Name          string
+	StartTime     time.Time
+	LeftScore     *int64
+	RightScore    *int64
+	Total         int64
+}
+
+func (q *Queries) ListMatchesByPlayer(ctx context.Context, arg ListMatchesByPlayerParams) ([]ListMatchesByPlayerRow, error) {
+	rows, err := q.db.QueryContext(ctx, listMatchesByPlayer, arg.PlayerID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListMatchesByPlayerRow
+	for rows.Next() {
+		var i ListMatchesByPlayerRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CompetitionID,
+			&i.Team,
+			&i.Name,
+			&i.StartTime,
+			&i.LeftScore,
+			&i.RightScore,
+			&i.Total,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateMatchScore = `-- name: UpdateMatchScore :exec
 UPDATE
     matches
